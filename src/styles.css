@@ -1,1 +1,139 @@
 /* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+
+/* CSS Variables for Minimalist Theme */
+:root {
+  /* Light Theme - Minimalist Black & White */
+  --primary-color: #000000;
+  --primary-color-hover: #333333;
+  --secondary-color: #666666;
+  --background-color: #ffffff;
+  --surface-color: #ffffff;
+  --text-color: #000000;
+  --text-color-secondary: #666666;
+  --border-color: #e5e5e5;
+  --hover-bg: #f5f5f5;
+  --focus-ring: rgba(0, 0, 0, 0.2);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] {
+  /* Dark Theme - Minimalist White & Black */
+  --primary-color: #ffffff;
+  --primary-color-hover: #cccccc;
+  --secondary-color: #999999;
+  --background-color: #000000;
+  --surface-color: #111111;
+  --text-color: #ffffff;
+  --text-color-secondary: #cccccc;
+  --border-color: #333333;
+  --hover-bg: #1a1a1a;
+  --focus-ring: rgba(255, 255, 255, 0.2);
+  --shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+  --shadow-hover: 0 4px 16px rgba(255, 255, 255, 0.15);
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme-aware component overrides */
+.light-theme {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.dark-theme {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Toast Notifications Styling */
+:root .p-toast {
+  z-index: 9999;
+}
+
+:root .p-toast .p-toast-message {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+:root .p-toast .p-toast-message.p-toast-message-success {
+  border-left: 4px solid #22c55e !important;
+}
+
+:root .p-toast .p-toast-message.p-toast-message-error {
+  border-left: 4px solid #ef4444 !important;
+}
+
+:root .p-toast .p-toast-message.p-toast-message-info {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+:root .p-toast .p-toast-message.p-toast-message-warn {
+  border-left: 4px solid #f59e0b !important;
+}
+
+:root .p-toast .p-toast-message .p-toast-message-content {
+  background: transparent !important;
+  color: var(--text-color) !important;
+}
+
+:root .p-toast .p-toast-message .p-toast-summary {
+  color: var(--text-color) !important;
+  font-weight: 600 !important;
+}
+
+:root .p-toast .p-toast-message .p-toast-detail {
+  color: var(--text-color-secondary) !important;
+}
+
+:root .p-toast .p-toast-message .p-toast-icon-close {
+  color: var(--text-color-secondary) !important;
+}
+
+:root .p-toast .p-toast-message .p-toast-icon-close:hover {
+  color: var(--text-color) !important;
+  background: var(--hover-color) !important;
+}
