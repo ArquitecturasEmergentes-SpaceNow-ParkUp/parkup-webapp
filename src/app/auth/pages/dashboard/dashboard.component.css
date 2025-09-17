@@ -1,0 +1,242 @@
+.dashboard-container {
+  min-height: 100vh;
+  background: var(--background-color);
+}
+
+.dashboard-header {
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+.brand h1 i {
+  color: var(--primary-color);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-email {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.welcome-section {
+  animation-delay: 0.1s;
+}
+
+.welcome-header {
+  text-align: center;
+  padding: 1rem;
+  background: var(--primary-color);
+  color: var(--background-color);
+  border-radius: 8px 8px 0 0;
+  margin: -1rem -1rem 0 -1rem;
+}
+
+.welcome-icon {
+  font-size: 2rem;
+  color: var(--background-color);
+}
+
+.welcome-section h2 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.welcome-section p {
+  color: var(--text-color-secondary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  animation-delay: 0.2s;
+}
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-icon {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+  margin: -1rem -1rem 0 -1rem;
+  background: var(--primary-color);
+}
+
+.stat-icon i {
+  font-size: 2rem;
+  color: var(--background-color);
+}
+
+.stat-card h3 {
+  color: var(--text-color);
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+  text-align: center;
+}
+
+.actions-section {
+  animation-delay: 0.3s;
+}
+
+.actions-section h3 {
+  color: var(--background-color);
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--primary-color);
+  border-radius: 8px 8px 0 0;
+  margin: -1rem -1rem 0 -1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+:host ::ng-deep .action-btn.primary {
+  background: var(--primary-color) !important;
+  border: 1px solid var(--primary-color) !important;
+  color: var(--background-color) !important;
+}
+
+:host ::ng-deep .action-btn.primary:hover {
+  background: var(--primary-color-hover) !important;
+  border-color: var(--primary-color-hover) !important;
+}
+
+:host ::ng-deep .action-btn.secondary {
+  background: transparent !important;
+  border: 1px solid var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+:host ::ng-deep .action-btn.secondary:hover {
+  background: var(--primary-color) !important;
+  color: var(--background-color) !important;
+}
+
+:host ::ng-deep .action-btn {
+  font-size: 1rem !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.2s ease !important;
+  border-radius: 6px !important;
+}
+
+:host ::ng-deep .action-btn:hover {
+  transform: translateY(-1px) !important;
+}
+
+:host ::ng-deep .logout-btn {
+  background: transparent !important;
+  border: 1px solid var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+:host ::ng-deep .logout-btn:hover {
+  background: var(--primary-color) !important;
+  color: var(--background-color) !important;
+}
+
+:host ::ng-deep .p-card {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+:host ::ng-deep .p-avatar {
+  background: var(--primary-color) !important;
+  color: var(--background-color) !important;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .user-info {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .dashboard-content {
+    padding: 1rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

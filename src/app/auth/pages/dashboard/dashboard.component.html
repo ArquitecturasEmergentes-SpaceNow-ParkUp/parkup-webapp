@@ -1,0 +1,83 @@
+<div class="dashboard-container fade-in">
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="brand">
+        <h1><i class="pi pi-car"></i> ParkUp Dashboard</h1>
+      </div>
+      <div class="user-info">
+        <app-theme-switcher></app-theme-switcher>
+        <p-avatar [label]="getInitials(user?.email || '')" styleClass="mr-2" size="large" shape="circle">
+        </p-avatar>
+        <span class="user-email">{{ user?.email }}</span>
+        <p-button label="Logout" icon="pi pi-sign-out" styleClass="p-button-outlined logout-btn"
+                  (click)="logout()">
+        </p-button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <div class="welcome-section slide-up">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="welcome-header">
+            <i class="pi pi-home welcome-icon"></i>
+          </div>
+        </ng-template>
+        <h2>Welcome to ParkUp!</h2>
+        <p>Your smart parking management solution is ready to use. Find, book, and manage parking spots with
+          ease.</p>
+      </p-card>
+    </div>
+
+    <div class="stats-grid slide-up">
+      <p-card class="stat-card">
+        <ng-template pTemplate="header">
+          <div class="stat-icon active">
+            <i class="pi pi-calendar"></i>
+          </div>
+        </ng-template>
+        <h3>Active Bookings</h3>
+        <p class="stat-number">0</p>
+      </p-card>
+
+      <p-card class="stat-card">
+        <ng-template pTemplate="header">
+          <div class="stat-icon total">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+        </ng-template>
+        <h3>Total Bookings</h3>
+        <p class="stat-number">0</p>
+      </p-card>
+
+      <p-card class="stat-card">
+        <ng-template pTemplate="header">
+          <div class="stat-icon favorite">
+            <i class="pi pi-heart"></i>
+          </div>
+        </ng-template>
+        <h3>Favorite Spots</h3>
+        <p class="stat-number">0</p>
+      </p-card>
+    </div>
+
+    <div class="actions-section slide-up">
+      <p-card>
+        <ng-template pTemplate="header">
+          <h3><i class="pi pi-bolt"></i> Quick Actions</h3>
+        </ng-template>
+        <div class="action-buttons">
+          <p-button label="Find Parking" icon="pi pi-map-marker" styleClass="action-btn primary">
+          </p-button>
+          <p-button label="View Bookings" icon="pi pi-list"
+                    styleClass="action-btn secondary p-button-outlined">
+          </p-button>
+          <p-button label="Manage Profile" icon="pi pi-user"
+                    styleClass="action-btn secondary p-button-outlined">
+          </p-button>
+        </div>
+      </p-card>
+    </div>
+  </main>
+</div>

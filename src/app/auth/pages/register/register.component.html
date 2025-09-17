@@ -1,0 +1,71 @@
+<div class="register-container fade-in">
+  <div class="theme-switcher-wrapper">
+    <app-theme-switcher></app-theme-switcher>
+  </div>
+  <p-card class="register-card slide-up">
+    <ng-template pTemplate="header">
+      <div class="register-header">
+        <h1><i class="pi pi-car"></i> ParkUp</h1>
+        <p>Create your account</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="p-field">
+        <label for="email">Email Address</label>
+        <input pInputText type="email" id="email" formControlName="email" placeholder="Enter your email"
+               class="w-full"
+               [class.p-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" />
+        <small class="p-error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+          <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+        </small>
+      </div>
+
+      <div class="p-field">
+        <label for="password">Password</label>
+        <p-password formControlName="password" placeholder="Enter your password" [toggleMask]="true"
+                    [feedback]="true" styleClass="w-full" inputStyleClass="w-full"
+                    [class.p-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"></p-password>
+        <small class="p-error"
+               *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6
+                        characters</span>
+        </small>
+      </div>
+
+      <div class="p-field">
+        <label for="confirmPassword">Confirm Password</label>
+        <p-password formControlName="confirmPassword" placeholder="Confirm your password" [toggleMask]="true"
+                    [feedback]="false" styleClass="w-full" inputStyleClass="w-full"
+                    [class.p-invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"></p-password>
+        <small class="p-error"
+               *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+                    <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your
+                        password</span>
+        </small>
+        <small class="p-error"
+               *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
+          Passwords do not match
+        </small>
+      </div>
+
+      <p-message *ngIf="registerError" severity="error" [text]="registerError" styleClass="w-full"></p-message>
+
+      <p-button type="submit" label="Create Account" icon="pi pi-user-plus" styleClass="w-full register-btn"
+                [disabled]="registerForm.invalid || isLoading" [loading]="isLoading"
+                loadingIcon="pi pi-spinner pi-spin"></p-button>
+    </form>
+
+    <ng-template pTemplate="footer">
+      <div class="register-footer">
+        <p>Already have an account?
+          <a routerLink="/login" class="login-link">
+            <i class="pi pi-sign-in"></i> Sign in
+          </a>
+        </p>
+      </div>
+    </ng-template>
+  </p-card>
+</div>
