@@ -66,6 +66,19 @@ export const endpoints = {
     getByParkingLot: (parkingLotId: string | number) =>
       `${config.apiUrl}/api/v1/parking-lots/${parkingLotId}/slots`,
   },
+  profiles: {
+    getById: (profileId: string | number) =>
+      `${config.apiUrl}/api/v1/profiles/${profileId}`,
+    update: (profileId: string | number) =>
+      `${config.apiUrl}/api/v1/profiles/${profileId}`,
+    create: `${config.apiUrl}/api/v1/profiles`,
+    updateNotifications: (profileId: string | number) =>
+      `${config.apiUrl}/api/v1/profiles/${profileId}/notifications`,
+    getByUserId: (userId: string | number) =>
+      `${config.apiUrl}/api/v1/profiles/user/${userId}`,
+    getByDocument: (dni: string) =>
+      `${config.apiUrl}/api/v1/profiles/document/${dni}`,
+  },
 } as const;
 
 export default config;
