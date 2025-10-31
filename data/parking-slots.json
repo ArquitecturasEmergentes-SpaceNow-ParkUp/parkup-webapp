@@ -1,0 +1,234 @@
+[
+  {
+    "id": "A1",
+    "slotNumber": "A1",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 1,
+    "parkingLotId": 1
+  },
+  {
+    "id": "A2",
+    "slotNumber": "A2",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 2,
+    "parkingLotId": 2
+  },
+  {
+    "id": "A3",
+    "slotNumber": "A3",
+    "status": "OCCUPIED",
+    "type": "DISABLED",
+    "parkingSlotId": 3,
+    "parkingLotId": 3
+  },
+  {
+    "id": "A4",
+    "slotNumber": "A4",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 4,
+    "parkingLotId": 4
+  },
+  {
+    "id": "A5",
+    "slotNumber": "A5",
+    "status": "AVAILABLE",
+    "type": "MOTORCYCLE",
+    "parkingSlotId": 5,
+    "parkingLotId": 5
+  },
+  {
+    "id": "A6",
+    "slotNumber": "A6",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 6,
+    "parkingLotId": 6
+  },
+  {
+    "id": "A7",
+    "slotNumber": "A7",
+    "status": "RESERVED",
+    "type": "REGULAR",
+    "parkingSlotId": 7,
+    "parkingLotId": 7
+  },
+  {
+    "id": "A8",
+    "slotNumber": "A8",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 8,
+    "parkingLotId": 8
+  },
+  {
+    "id": "B1",
+    "slotNumber": "B1",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 9,
+    "parkingLotId": 9
+  },
+  {
+    "id": "B2",
+    "slotNumber": "B2",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 10,
+    "parkingLotId": 10
+  },
+  {
+    "id": "B3",
+    "slotNumber": "B3",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 11,
+    "parkingLotId": 111
+  },
+  {
+    "id": "B4",
+    "slotNumber": "B4",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 12,
+    "parkingLotId": 12
+  },
+  {
+    "id": "B5",
+    "slotNumber": "B5",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 13,
+    "parkingLotId": 13
+  },
+  {
+    "id": "B6",
+    "slotNumber": "B6",
+    "status": "RESERVED",
+    "type": "REGULAR",
+    "parkingSlotId": 14,
+    "parkingLotId": 14
+  },
+  {
+    "id": "C1",
+    "slotNumber": "C1",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 15,
+    "parkingLotId": 15
+  },
+  {
+    "id": "C2",
+    "slotNumber": "C2",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 16,
+    "parkingLotId": 16
+  },
+  {
+    "id": "C3",
+    "slotNumber": "C3",
+    "status": "RESERVED",
+    "type": "REGULAR",
+    "parkingSlotId": 17,
+    "parkingLotId": 17
+  },
+  {
+    "id": "C4",
+    "slotNumber": "C4",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 18,
+    "parkingLotId": 18
+  },
+  {
+    "id": "C5",
+    "slotNumber": "C5",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 19,
+    "parkingLotId": 19
+  },
+  {
+    "id": "C6",
+    "slotNumber": "C6",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 20,
+    "parkingLotId": 20
+  },
+  {
+    "id": "C7",
+    "slotNumber": "C7",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 21,
+    "parkingLotId": 21
+  },
+  {
+    "id": "D1",
+    "slotNumber": "D1",
+    "status": "RESERVED",
+    "type": "REGULAR",
+    "parkingSlotId": 22,
+    "parkingLotId": 22
+  },
+  {
+    "id": "D2",
+    "slotNumber": "D2",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 23,
+    "parkingLotId": 23
+  },
+  {
+    "id": "D3",
+    "slotNumber": "D3",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 24,
+    "parkingLotId": 24
+  },
+  {
+    "id": "D4",
+    "slotNumber": "D4",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 25,
+    "parkingLotId": 25
+  },
+  {
+    "id": "D5",
+    "slotNumber": "D5",
+    "status": "OCCUPIED",
+    "type": "DISABLED",
+    "parkingSlotId": 26,
+    "parkingLotId": 26
+  },
+  {
+    "id": "D6",
+    "slotNumber": "D6",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 27,
+    "parkingLotId": 27
+  },
+  {
+    "id": "D7",
+    "slotNumber": "D7",
+    "status": "OCCUPIED",
+    "type": "REGULAR",
+    "parkingSlotId": 28,
+    "parkingLotId": 28
+  },
+  {
+    "id": "D8",
+    "slotNumber": "D8",
+    "status": "AVAILABLE",
+    "type": "REGULAR",
+    "parkingSlotId": 29,
+    "parkingLotId": 29
+  }
+]
