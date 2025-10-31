@@ -1,0 +1,106 @@
+[
+  {
+    "row": "A",
+    "slots": [
+      {
+        "ids": ["A1", "A2"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["A3", "A4", "A5"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["A6", "A7", "A8"],
+        "gap": false
+      }
+    ]
+  },
+  {
+    "row": "B",
+    "slots": [
+      {
+        "ids": ["B1", "B2", "B3"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["B4", "B5", "B6"],
+        "gap": false
+      }
+    ]
+  },
+  {
+    "row": "C",
+    "slots": [
+      {
+        "ids": ["C1", "C2"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["C3", "C4", "C5"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["C6", "C7"],
+        "gap": false
+      }
+    ]
+  },
+  {
+    "row": "D",
+    "slots": [
+      {
+        "ids": ["D1", "D2"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["D3", "D4", "D5"],
+        "gap": false
+      },
+      {
+        "ids": [],
+        "gap": true
+      },
+      {
+        "ids": ["D6", "D7", "D8"],
+        "gap": false
+      }
+    ]
+  }
+]
