@@ -32,6 +32,7 @@ export async function login(formData: FormData) {
     // data: { id: number, email: string, token: string }
     const token = data.token;
     const userId = data.id.toString();
+    const userEmail = data.email;
 
     const cookieStore = await cookies();
     cookieStore.set("session", token, {
@@ -40,6 +41,10 @@ export async function login(formData: FormData) {
     });
     cookieStore.set("user_id", userId, {
       httpOnly: true,
+      secure: config.isProduction,
+    });
+    cookieStore.set("user_email", userEmail, {
+      httpOnly: false, // Need to read from client
       secure: config.isProduction,
     });
 
@@ -111,5 +116,6 @@ export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete("session");
   cookieStore.delete("user_id");
+  cookieStore.delete("user_email");
   redirect("/login");
 }
