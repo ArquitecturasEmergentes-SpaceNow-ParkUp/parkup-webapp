@@ -2,36 +2,26 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { endpoints } from "@/lib/config";
-
-export interface ProfileData {
-  id?: number;
-  userId: number;
-  firstName: string;
-  lastName: string;
-  dni: string;
-  countryCode: string;
-  phoneNumber: string;
-  notificationsEnabled?: boolean;
-}
-
-export interface UpdateProfileRequest {
-  firstName: string;
-  lastName: string;
-  dni: string;
-  countryCode: string;
-  phoneNumber: string;
-}
-
-export interface CreateProfileRequest extends UpdateProfileRequest {
-  userId: number;
-}
+import {
+  getProfileById,
+  getProfileByUserId,
+  getProfileByDocument,
+  updateProfile as updateProfileServer,
+  createProfile as createProfileServer,
+  updateNotifications as updateNotificationsServer,
+  type ProfileData,
+  type UpdateProfileRequest,
+  type CreateProfileRequest,
+  type UserData,
+} from "@/lib/profiles";
 
 export interface UseProfileReturn {
   profile: ProfileData | null;
+  user: UserData | null;
   isLoading: boolean;
   isUpdating: boolean;
   isCreating: boolean;
+  profileNotFound: boolean;
   fetchProfile: (profileId: number) => Promise<boolean>;
   fetchProfileByUserId: (userId: number) => Promise<boolean>;
   fetchProfileByDocument: (dni: string) => Promise<boolean>;
@@ -42,28 +32,25 @@ export interface UseProfileReturn {
 
 export function useProfile(): UseProfileReturn {
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [profileNotFound, setProfileNotFound] = useState(false);
 
   const fetchProfile = useCallback(async (profileId: number) => {
     setIsLoading(true);
     try {
-      const response = await fetch(endpoints.profiles.getById(profileId), {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const result = await getProfileById(profileId);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile");
+      if (result.success && result.data) {
+        setProfile(result.data);
+        return true;
+      } else {
+        toast.error("Error al cargar el perfil");
+        console.error("Error fetching profile:", result.error);
+        return false;
       }
-
-      const data = await response.json();
-      setProfile(data);
-      return true;
     } catch (error) {
       toast.error("Error al cargar el perfil");
       console.error("Error fetching profile:", error);
@@ -75,22 +62,42 @@ export function useProfile(): UseProfileReturn {
 
   const fetchProfileByUserId = useCallback(async (userId: number) => {
     setIsLoading(true);
+    setProfileNotFound(false);
     try {
-      const response = await fetch(endpoints.profiles.getByUserId(userId), {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      // Get user email from cookie instead of API call
+      const userEmailCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user_email='))
+        ?.split('=')[1];
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile by user ID");
+      // Set user data from cookie
+      if (userEmailCookie) {
+        setUser({
+          id: userId,
+          email: decodeURIComponent(userEmailCookie),
+          roles: [], // We don't store roles in cookie, but we can fetch if needed
+        });
+      } else {
+        console.warn("No user_email cookie found");
+        setUser(null);
       }
 
-      const data = await response.json();
-      setProfile(data);
-      return true;
+      // Fetch profile data
+      const profileResult = await getProfileByUserId(userId);
+
+      // Handle profile data
+      if (profileResult.success && profileResult.data) {
+        setProfile(profileResult.data);
+        return true;
+      } else if (profileResult.notFound) {
+        setProfileNotFound(true);
+        setProfile(null);
+        return true; // Not an error, just profile doesn't exist
+      } else {
+        toast.error("Error al cargar el perfil del usuario");
+        console.error("Error fetching profile by user ID:", profileResult.error);
+        return false;
+      }
     } catch (error) {
       toast.error("Error al cargar el perfil del usuario");
       console.error("Error fetching profile by user ID:", error);
@@ -103,21 +110,16 @@ export function useProfile(): UseProfileReturn {
   const fetchProfileByDocument = useCallback(async (dni: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(endpoints.profiles.getByDocument(dni), {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const result = await getProfileByDocument(dni);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile by document");
+      if (result.success && result.data) {
+        setProfile(result.data);
+        return true;
+      } else {
+        toast.error("Error al buscar perfil por documento");
+        console.error("Error fetching profile by document:", result.error);
+        return false;
       }
-
-      const data = await response.json();
-      setProfile(data);
-      return true;
     } catch (error) {
       toast.error("Error al buscar perfil por documento");
       console.error("Error fetching profile by document:", error);
@@ -127,27 +129,21 @@ export function useProfile(): UseProfileReturn {
     }
   }, []);
 
-  const updateProfile = useCallback(
+  const updateProfileFunc = useCallback(
     async (profileId: number, data: UpdateProfileRequest) => {
       setIsUpdating(true);
       try {
-        const response = await fetch(endpoints.profiles.update(profileId), {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(data),
-        });
+        const result = await updateProfileServer(profileId, data);
 
-        if (!response.ok) {
-          throw new Error("Failed to update profile");
+        if (result.success && result.data) {
+          setProfile(result.data);
+          toast.success("Perfil actualizado exitosamente");
+          return true;
+        } else {
+          toast.error("Error al actualizar el perfil");
+          console.error("Error updating profile:", result.error);
+          return false;
         }
-
-        const updatedProfile = await response.json();
-        setProfile(updatedProfile);
-        toast.success("Perfil actualizado exitosamente");
-        return true;
       } catch (error) {
         toast.error("Error al actualizar el perfil");
         console.error("Error updating profile:", error);
@@ -159,26 +155,20 @@ export function useProfile(): UseProfileReturn {
     [],
   );
 
-  const createProfile = useCallback(async (data: CreateProfileRequest) => {
+  const createProfileFunc = useCallback(async (data: CreateProfileRequest) => {
     setIsCreating(true);
     try {
-      const response = await fetch(endpoints.profiles.create, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
+      const result = await createProfileServer(data);
 
-      if (!response.ok) {
-        throw new Error("Failed to create profile");
+      if (result.success && result.data) {
+        setProfile(result.data);
+        toast.success("Perfil creado exitosamente");
+        return true;
+      } else {
+        toast.error("Error al crear el perfil");
+        console.error("Error creating profile:", result.error);
+        return false;
       }
-
-      const newProfile = await response.json();
-      setProfile(newProfile);
-      toast.success("Perfil creado exitosamente");
-      return true;
     } catch (error) {
       toast.error("Error al crear el perfil");
       console.error("Error creating profile:", error);
@@ -188,32 +178,24 @@ export function useProfile(): UseProfileReturn {
     }
   }, []);
 
-  const updateNotifications = useCallback(
+  const updateNotificationsFunc = useCallback(
     async (profileId: number, enabled: boolean) => {
       try {
-        const response = await fetch(
-          endpoints.profiles.updateNotifications(profileId),
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ notificationsEnabled: enabled }),
-          },
-        );
+        const result = await updateNotificationsServer(profileId, enabled);
 
-        if (!response.ok) {
-          throw new Error("Failed to update notifications");
+        if (result.success) {
+          setProfile((prev: ProfileData | null) => (prev ? { ...prev, notificationsEnabled: enabled } : null));
+          toast.success(
+            enabled
+              ? "Notificaciones activadas"
+              : "Notificaciones desactivadas",
+          );
+          return true;
+        } else {
+          toast.error("Error al actualizar las notificaciones");
+          console.error("Error updating notifications:", result.error);
+          return false;
         }
-
-        setProfile((prev) => (prev ? { ...prev, notificationsEnabled: enabled } : null));
-        toast.success(
-          enabled
-            ? "Notificaciones activadas"
-            : "Notificaciones desactivadas",
-        );
-        return true;
       } catch (error) {
         toast.error("Error al actualizar las notificaciones");
         console.error("Error updating notifications:", error);
@@ -221,18 +203,18 @@ export function useProfile(): UseProfileReturn {
       }
     },
     [],
-  );
-
-  return {
+  );  return {
     profile,
+    user,
     isLoading,
     isUpdating,
     isCreating,
+    profileNotFound,
     fetchProfile,
     fetchProfileByUserId,
     fetchProfileByDocument,
-    updateProfile,
-    createProfile,
-    updateNotifications,
+    updateProfile: updateProfileFunc,
+    createProfile: createProfileFunc,
+    updateNotifications: updateNotificationsFunc,
   };
 }
