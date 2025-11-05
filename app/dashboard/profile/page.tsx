@@ -40,14 +40,7 @@ export default function ProfilePage() {
       console.log('All cookies:', document.cookie);
       console.log('userIdCookie:', userIdCookie);
 
-      if (!userIdCookie) {
-        console.log('No user_id cookie found, using fallback userId = 1');
-        // Fallback to userId = 1 for now
-        await fetchProfileByUserId(1);
-        return;
-      }
-
-      const userId = parseInt(userIdCookie, 10);
+      const userId = parseInt(userIdCookie as string, 10);
       console.log('Parsed userId:', userId);
       await fetchProfileByUserId(userId);
     };
