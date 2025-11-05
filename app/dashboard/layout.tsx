@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
-import { getCurrentUser } from "@/lib/actions";
+import { getCurrentUser } from "@/app/actions";
 import { UserProvider } from "@/components/dashboard/user-provider";
 
 export default async function DashboardLayout({

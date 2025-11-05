@@ -13,6 +13,9 @@ import {
   ProfileSkeleton,
 } from "@/components/profile";
 
+import { getCookie } from 'cookies-next';
+
+
 export default function ProfilePage() {
   const {
     profile,
@@ -31,11 +34,8 @@ export default function ProfilePage() {
   // Load profile on mount
   useEffect(() => {
     const loadProfile = async () => {
-      // Get actual user ID from cookie
-      const userIdCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('user_id='))
-        ?.split('=')[1];
+      // get the cookie 'user_id'
+      const userIdCookie = getCookie('user_id');
 
       console.log('All cookies:', document.cookie);
       console.log('userIdCookie:', userIdCookie);

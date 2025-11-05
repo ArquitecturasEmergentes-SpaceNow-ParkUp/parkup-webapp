@@ -36,7 +36,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { logout } from "@/lib/actions";
+import { logout } from "@/app/actions";
 import { toast } from "sonner";
 
 const navigationItems = [

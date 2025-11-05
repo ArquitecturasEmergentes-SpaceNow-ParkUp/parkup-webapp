@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "@/lib/actions";
+import type { User } from "@/app/actions";
 
 interface UserContextType {
   user: User | null;
