@@ -99,8 +99,8 @@ export async function getCurrentUserId(): Promise<number | null> {
     return null;
   }
 
-  const userId = parseInt(userIdCookie.value, 10);
-  return isNaN(userId) ? null : userId;
+  const userId = Number.parseInt(userIdCookie.value, 10);
+  return Number.isNaN(userId) ? null : userId;
 }
 
 /**
@@ -179,25 +179,29 @@ export async function createReservation(
       const responseData = await response.json();
       console.log("Reservation created successfully:", responseData);
       return { success: true, data: responseData };
-    } else {
-      const errorText = await response.text();
-      console.error("Reservation error response:", errorText);
+    } 
+    
+    const errorText = await response.text();
+    console.error("Reservation error response:", errorText);
 
-      let errorData;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch {
-        errorData = { message: errorText || "Failed to create reservation" };
-      }
-
-      return {
-        success: false,
-        error:
-          errorData.message ||
-          errorData.error ||
-          "Failed to create reservation",
+    let errorData: { message?: string; error?: string };
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { 
+        message: errorText || `Failed to create reservation (Status: ${response.status})` 
       };
     }
+
+    console.error("Parsed error data:", errorData);
+
+    return {
+      success: false,
+      error:
+        errorData.message ||
+        errorData.error ||
+        `Failed to create reservation (Status: ${response.status})`,
+    };
   } catch (error) {
     console.error("Error creating reservation:", error);
     return {
@@ -239,6 +243,79 @@ export async function cancelReservation(reservationId: number): Promise<{
     }
   } catch (error) {
     console.error("Error cancelling reservation:", error);
+    return { success: false, error: "Network error" };
+  }
+}
+
+/**
+ * Confirm payment for a reservation
+ */
+export async function confirmReservationPayment(
+  reservationId: number,
+  paymentIntentId: string
+): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    // Get fresh token
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session");
+    const token = sessionCookie?.value;
+
+    console.log("🔐 Session cookie:", sessionCookie ? "Found" : "Not found");
+    console.log("🔐 Token value:", token ? `Yes (${token.substring(0, 10)}...)` : "No");
+
+    if (!token) {
+      console.error("❌ No authentication token found");
+      return { success: false, error: "Not authenticated" };
+    }
+
+    console.log("Confirming payment for reservation:", reservationId);
+    console.log("Payment Intent ID:", paymentIntentId);
+    console.log("Endpoint:", endpoints.reservations.confirmPayment(reservationId));
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      accept: "*/*",
+    };
+    console.log("Request headers:", JSON.stringify(headers, null, 2));
+
+    const response = await fetch(
+      endpoints.reservations.confirmPayment(reservationId),
+      {
+        method: "PUT",
+        headers,
+      }
+    );
+
+    console.log("Confirm payment response status:", response.status);
+
+    if (response.ok) {
+      console.log("Payment confirmed successfully");
+      return { success: true };
+    }
+    
+    const errorText = await response.text();
+    console.error("Confirm payment error response:", errorText);
+
+    let errorData: { message?: string; error?: string };
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { 
+        message: errorText || `Failed to confirm payment (Status: ${response.status})` 
+      };
+    }
+
+    console.error("Parsed confirm payment error:", errorData);
+
+    return { 
+      success: false, 
+      error: errorData.message || errorData.error || "Failed to confirm payment" 
+    };
+  } catch (error) {
+    console.error("Error confirming payment:", error);
     return { success: false, error: "Network error" };
   }
 }
