@@ -49,15 +49,27 @@ export default function ReservationsPage() {
   const handleConfirmReservation = async (
     startTime: string,
     endTime: string,
+    paymentIntentId: string,
   ) => {
     if (!selectedSlot) {
       return;
     }
 
+    console.log("Payment Intent ID:", paymentIntentId);
+    console.log("Parking Slot ID:", selectedSlot.parkingSlotId);
+    console.log("Parking Lot ID:", selectedSlot.parkingLotId);
+
+    // Format dates without milliseconds for backend
+    const formatDate = (dateStr: string) => {
+      const date = new Date(dateStr);
+      return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+    };
+
     const success = await handleCreateReservation(
       selectedSlot.parkingLotId,
-      new Date(startTime).toISOString(),
-      new Date(endTime).toISOString(),
+      formatDate(startTime),
+      formatDate(endTime),
+      paymentIntentId,
     );
 
     if (success) {
