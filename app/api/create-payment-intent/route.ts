@@ -14,7 +14,7 @@ const stripe = new Stripe(stripeSecretKey, {
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, currency = "pen", metadata = {} } = await request.json();
+    const { amount, currency = "usd", metadata = {} } = await request.json();
 
     if (!amount || amount <= 0) {
       return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       metadata,
     });
 
-    
+
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
