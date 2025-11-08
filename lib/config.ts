@@ -61,6 +61,8 @@ export const endpoints = {
       `${config.apiUrl}/api/v1/reservations/${reservationId}`,
     cancel: (reservationId: string | number) =>
       `${config.apiUrl}/api/v1/reservations/${reservationId}/cancel`,
+    confirmPayment: (reservationId: string | number) =>
+      `${config.apiUrl}/api/v1/reservations/${reservationId}/confirm-payment`,
   },
   parkingSlots: {
     getByParkingLot: (parkingLotId: string | number) =>
