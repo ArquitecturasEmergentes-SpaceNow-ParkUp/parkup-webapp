@@ -8,8 +8,10 @@ import {
   MapPin,
   Settings,
   User2,
-  TicketCheck,
+  Users,
+  BarChart3,
   Shield,
+  FileText,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,43 +41,57 @@ import {
 } from "@/components/ui/sidebar";
 import { logout } from "@/app/actions";
 import { toast } from "sonner";
-import { getDisplayRole, isAdmin } from "@/lib/auth";
+import { getDisplayRole } from "@/lib/auth";
 
 const navigationItems = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/admin",
     icon: LayoutDashboard,
   },
   {
+    title: "Users Management",
+    url: "/admin/users",
+    icon: Users,
+  },
+  {
     title: "Recognition Units",
-    url: "/dashboard/recognition-units",
+    url: "/admin/recognition-units",
     icon: MapPin,
   },
   {
-    title: "Reservations",
-    url: "/dashboard/reservations",
-    icon: TicketCheck,
+    title: "Reports & Analytics",
+    url: "/admin/reports",
+    icon: BarChart3,
+  },
+  {
+    title: "System Logs",
+    url: "/admin/logs",
+    icon: FileText,
   },
 ];
 
 const accountItems = [
   {
     title: "Settings",
-    url: "/dashboard/settings",
+    url: "/admin/settings",
     icon: Settings,
   },
   {
+    title: "Security",
+    url: "/admin/security",
+    icon: Shield,
+  },
+  {
     title: "Help & Support",
-    url: "/dashboard/support",
+    url: "/admin/support",
     icon: HelpCircle,
   },
 ];
 
-export function AppSidebar() {
+export function AdminSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
-  const userIsAdmin = isAdmin(user);
 
   const handleLogout = async () => {
     toast.success("Logged out successfully", {
@@ -96,7 +112,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/admin">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
                   <Image
                     src="/logo_app.webp"
@@ -107,9 +123,9 @@ export function AppSidebar() {
                   />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">ParkUp</span>
+                  <span className="truncate font-semibold">ParkUp Admin</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    Smart Parking
+                    Administration Panel
                   </span>
                 </div>
               </Link>
@@ -120,7 +136,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -142,7 +158,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>Administration</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {accountItems.map((item) => (
@@ -174,8 +190,8 @@ export function AppSidebar() {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">
-                      {user ? getInitials(user.email) : "U"}
+                    <AvatarFallback className="rounded-lg bg-orange-500 text-white">
+                      {user ? getInitials(user.email) : "A"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -196,29 +212,25 @@ export function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile">
+                  <Link href="/admin/profile">
                     <User2 className="mr-2 h-4 w-4" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings">
+                  <Link href="/admin/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {userIsAdmin && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Panel
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    User Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
