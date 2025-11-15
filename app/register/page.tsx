@@ -28,11 +28,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 const registerSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be less than 50 characters"),
   email: z
     .string()
     .min(1, "Email is required")
@@ -54,7 +49,6 @@ export default function RegisterPage() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
@@ -63,7 +57,6 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterFormValues) {
     try {
       const formData = new FormData();
-      formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("password", data.password);
 
@@ -117,28 +110,6 @@ export default function RegisterPage() {
             className="space-y-4"
           >
             <FieldGroup>
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="register-name">Full Name</FieldLabel>
-                    <Input
-                      {...field}
-                      id="register-name"
-                      type="text"
-                      placeholder="John Doe"
-                      autoComplete="name"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <FieldDescription>Enter your full name</FieldDescription>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
               <Controller
                 name="email"
                 control={form.control}

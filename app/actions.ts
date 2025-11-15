@@ -69,17 +69,20 @@ export async function login(formData: FormData): Promise<LoginResult> {
 }
 
 export async function signup(formData: FormData) {
-  const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  // Please confirm the fields for SignUpResource. Assuming name, email, password.
+  // Register with ROLE_USER by default
   const response = await fetch(endpoints.auth.register, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({
+      email,
+      password,
+      roles: ["ROLE_USER"],
+    }),
   });
 
   if (response.ok) {
