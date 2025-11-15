@@ -81,6 +81,21 @@ export const endpoints = {
     getByDocument: (dni: string) =>
       `${config.apiUrl}/api/v1/profiles/document/${dni}`,
   },
+  affiliate: {
+    parkingLots: {
+      list: `${config.apiUrl}/api/affiliate/parking-lots`,
+      getById: (id: string | number) => `${config.apiUrl}/api/affiliate/parking-lots/${id}`,
+      maps: {
+        add: `${config.apiUrl}/api/affiliate/parking-lots/maps`,
+        edit: (mapId: string | number) => `${config.apiUrl}/api/affiliate/parking-lots/maps/${mapId}`,
+        spaces: {
+          import: (mapId: string | number) => `${config.apiUrl}/api/affiliate/parking-lots/maps/${mapId}/spaces/import`,
+          list: (mapId: string | number) => `${config.apiUrl}/api/affiliate/parking-lots/maps/${mapId}/spaces`,
+          updateStatus: (mapId: string | number, spaceId: string | number) => `${config.apiUrl}/api/affiliate/parking-lots/maps/${mapId}/spaces/${spaceId}/status`,
+        },
+      },
+    },
+  },
 } as const;
 
 export default config;

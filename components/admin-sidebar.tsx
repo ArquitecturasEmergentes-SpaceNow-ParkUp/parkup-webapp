@@ -60,6 +60,11 @@ const navigationItems = [
     icon: MapPin,
   },
   {
+    title: "Map Editor",
+    url: "/admin/map-editor",
+    icon: LayoutDashboard,
+  },
+  {
     title: "Reports & Analytics",
     url: "/admin/reports",
     icon: BarChart3,
