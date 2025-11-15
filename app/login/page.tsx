@@ -8,7 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { login } from "@/app/actions";
+import { login, type LoginResult } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,19 +51,28 @@ export default function LoginPage() {
   });
 
   async function onSubmit(data: LoginFormValues) {
+    console.log("onSubmit called with:", data);
+
     try {
       const formData = new FormData();
       formData.append("email", data.email);
       formData.append("password", data.password);
 
-      const result = await login(formData);
+      console.log("Calling login action...");
+      const result: LoginResult = await login(formData);
+      console.log("Login result:", result);
 
-      if (result?.success) {
+      if (result.success) {
+        console.log("Login successful, redirecting to:", result.redirectTo);
         toast.success("Welcome back!", {
-          description: "Redirecting to your dashboard...",
+          description: `Redirecting to your ${result.isAdmin ? "admin panel" : "dashboard"}...`,
         });
-        setTimeout(() => router.push("/dashboard"), 1000);
-      } else if (result?.error) {
+
+        // Refresh router to recognize new cookies, then redirect
+        router.refresh();
+        router.push(result.redirectTo);
+      } else {
+        console.error("Login error:", result.error);
         toast.error("Login failed", {
           description: result.error,
         });
@@ -72,6 +81,7 @@ export default function LoginPage() {
         });
       }
     } catch (error) {
+      console.error("Exception during login:", error);
       toast.error("An error occurred", {
         description: "Please try again later",
       });
@@ -102,7 +112,10 @@ export default function LoginPage() {
         <CardContent>
           <form
             id="login-form"
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit(onSubmit)(e);
+            }}
             className="space-y-4"
           >
             <FieldGroup>

@@ -4,14 +4,14 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AdminSidebar } from "@/components/admin-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { getCurrentUser } from "@/app/actions";
 import { UserProvider } from "@/components/dashboard/user-provider";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth";
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,21 +20,21 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
   const user = await getCurrentUser();
 
-  // Redirect admins to admin panel
-  if (user && isAdmin(user)) {
-    redirect("/admin");
+  // Redirect if user is not an admin
+  if (!user || !isAdmin(user)) {
+    redirect("/dashboard");
   }
 
   return (
     <UserProvider initialUser={user}>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
+        <AdminSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-semibold">Dashboard</h1>
+              <h1 className="text-lg font-semibold">Admin Panel</h1>
             </div>
           </header>
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

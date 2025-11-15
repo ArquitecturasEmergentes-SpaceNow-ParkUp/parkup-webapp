@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { endpoints } from "../lib/config";
 import config from "../lib/config";
+import { ROLES } from "@/lib/auth";
 
 export interface User {
   id: number;
@@ -11,7 +12,11 @@ export interface User {
   roles: string[];
 }
 
-export async function login(formData: FormData) {
+export type LoginResult =
+  | { success: true; isAdmin: boolean; redirectTo: string }
+  | { success: false; error: string };
+
+export async function login(formData: FormData): Promise<LoginResult> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -29,10 +34,11 @@ export async function login(formData: FormData) {
 
   if (response.ok) {
     const data = await response.json();
-    // data: { id: number, email: string, token: string }
+    // data: { id: number, email: string, token: string, roles: string[] }
     const token = data.token;
     const userId = data.id.toString();
     const userEmail = data.email;
+    const roles = data.roles || [];
 
     console.log("Login successful, setting cookies", data);
 
@@ -48,9 +54,17 @@ export async function login(formData: FormData) {
       httpOnly: false,
     });
 
-    return { success: true };
+    // Return role information for client-side redirect
+    const isAdmin = roles.includes(ROLES.ADMIN);
+    const result: LoginResult = {
+      success: true,
+      isAdmin,
+      redirectTo: isAdmin ? "/admin" : "/dashboard",
+    };
+    console.log("Login action returning:", result);
+    return result;
   } else {
-    return { error: "Invalid email or password" };
+    return { success: false, error: "Invalid email or password" };
   }
 }
 
