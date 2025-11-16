@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 
 import { useUser } from "@/components/dashboard/user-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,55 +44,32 @@ import { logout } from "@/app/actions";
 import { toast } from "sonner";
 import { getDisplayRole } from "@/lib/auth";
 
-const navigationItems = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Users Management",
-    url: "/admin/users",
-    icon: Users,
-  },
-  {
-    title: "Recognition Units",
-    url: "/admin/recognition-units",
-    icon: MapPin,
-  },
-  {
-    title: "Map Editor",
-    url: "/admin/map-editor",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Reports & Analytics",
-    url: "/admin/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "System Logs",
-    url: "/admin/logs",
-    icon: FileText,
-  },
+const principalItems = [
+  { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
 ];
 
-const accountItems = [
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-  },
-  {
-    title: "Security",
-    url: "/admin/security",
-    icon: Shield,
-  },
-  {
-    title: "Help & Support",
-    url: "/admin/support",
-    icon: HelpCircle,
-  },
+const gestionUsuariosItems = [
+  { title: "Conductores", url: "/admin/users?tab=drivers", icon: Users, badge: "24" },
+  { title: "Propietarios", url: "/admin/users?tab=owners", icon: Users, badge: "18" },
+  { title: "Personal", url: "/admin/users?tab=staff", icon: Users, badge: "8" },
+];
+
+const operacionesItems = [
+  { title: "Unidades de Reconocimiento", url: "/admin/recognition-units", icon: MapPin, badge: "45" },
+  { title: "Editor de Mapas", url: "/admin/map-editor", icon: LayoutDashboard },
+  { title: "Reportes", url: "/admin/reports", icon: BarChart3 },
+  { title: "Logs del Sistema", url: "/admin/logs", icon: FileText },
+];
+
+const administracionItems = [
+  { title: "Configuración", url: "/admin/settings", icon: Settings },
+  { title: "Seguridad", url: "/admin/security", icon: Shield },
+  { title: "Ayuda y Soporte", url: "/admin/support", icon: HelpCircle },
+];
+
+const socialMedia = [
+  { title: "Facebook", href: "https://facebook.com/parkup", icon: "/facebook.svg" },
+  { title: "WhatsApp", href: "https://wa.me/parkupsupport", icon: "/whatsapp.svg" },
 ];
 
 export function AdminSidebar() {
@@ -141,16 +119,12 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {principalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -163,16 +137,54 @@ export function AdminSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Administration</SidebarGroupLabel>
+          <SidebarGroupLabel>Gestión de Usuarios</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {accountItems.map((item) => (
+              {gestionUsuariosItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.url.split("?")[0])} tooltip={item.title}>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span className="flex-1">{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="ml-auto">{item.badge}</Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {operacionesItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span className="flex-1">{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="ml-auto">{item.badge}</Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Administración</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {administracionItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -181,6 +193,20 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Redes Sociales</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="grid gap-2">
+              {socialMedia.map((social) => (
+                <Link key={social.title} href={social.href} target="_blank" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent">
+                  <Image src={social.icon} alt={`${social.title} icon`} width={20} height={20} className="h-5 w-5" />
+                  <span>{social.title}</span>
+                </Link>
+              ))}
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

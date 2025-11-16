@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 
 import { useUser } from "@/components/dashboard/user-provider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,35 +42,23 @@ import { logout } from "@/app/actions";
 import { toast } from "sonner";
 import { getDisplayRole, isAdmin } from "@/lib/auth";
 
-const navigationItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Recognition Units",
-    url: "/dashboard/recognition-units",
-    icon: MapPin,
-  },
-  {
-    title: "Reservations",
-    url: "/dashboard/reservations",
-    icon: TicketCheck,
-  },
+const principalItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
 ];
 
-const accountItems = [
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-  },
-  {
-    title: "Help & Support",
-    url: "/dashboard/support",
-    icon: HelpCircle,
-  },
+const operacionesItems = [
+  { title: "Unidades de Reconocimiento", url: "/dashboard/recognition-units", icon: MapPin },
+  { title: "Reservas", url: "/dashboard/reservations", icon: TicketCheck },
+];
+
+const cuentaItems = [
+  { title: "Configuración", url: "/dashboard/settings", icon: Settings },
+  { title: "Ayuda y Soporte", url: "/dashboard/support", icon: HelpCircle },
+];
+
+const socialMedia = [
+  { title: "Facebook", href: "https://facebook.com/parkup", icon: "/facebook.svg" },
+  { title: "WhatsApp", href: "https://wa.me/parkupsupport", icon: "/whatsapp.svg" },
 ];
 
 export function AppSidebar() {
@@ -120,16 +109,12 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {principalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -142,16 +127,30 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>Operaciones</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {accountItems.map((item) => (
+              {operacionesItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span className="flex-1">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Cuenta</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {cuentaItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url} tooltip={item.title}>
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -160,6 +159,20 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Redes Sociales</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="grid gap-2">
+              {socialMedia.map((social) => (
+                <Link key={social.title} href={social.href} target="_blank" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent">
+                  <Image src={social.icon} alt={`${social.title} icon`} width={20} height={20} className="h-5 w-5" />
+                  <span>{social.title}</span>
+                </Link>
+              ))}
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

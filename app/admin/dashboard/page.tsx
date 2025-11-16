@@ -1,24 +1,83 @@
-"use client";
+'use client';
 
 import * as React from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { CartesianGrid as LineCartesianGrid, LabelList, Line, LineChart, XAxis as LineXAxis } from "recharts";
 import { Pie, PieChart } from "recharts";
-import { ParkingCircle, Car, Clock, TrendingUp, Calendar, RefreshCw, MapPin } from 'lucide-react';
+import { 
+  ParkingCircle, 
+  Car, 
+  Clock, 
+  TrendingUp,
+  Calendar,
+  RefreshCw
+} from 'lucide-react';
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 export default function DashboardPage() {
-  const currentTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  const currentDate = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const currentTime = new Date().toLocaleTimeString('es-ES', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+
+  const currentDate = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   const stats = [
-    { title: "Parkings Activos", value: "3", description: "Espacios actualmente ocupados", icon: Car, trend: "+2 desde ayer", iconColor: "text-blue-600 dark:text-blue-400", iconBg: "bg-blue-100 dark:bg-blue-900/30", trendColor: "text-green-600 dark:text-green-400" },
-    { title: "Ingresos Totales", value: "S/ 1,234", description: "Este mes", icon: TrendingUp, trend: "+12.5% desde el mes pasado", iconColor: "text-emerald-600 dark:text-emerald-400", iconBg: "bg-emerald-100 dark:bg-emerald-900/30", trendColor: "text-green-600 dark:text-green-400" },
-    { title: "Espacios Disponibles", value: "12", description: "Listos para reservar", icon: ParkingCircle, trend: "Actualizado hace 5 min", iconColor: "text-purple-600 dark:text-purple-400", iconBg: "bg-purple-100 dark:bg-purple-900/30", trendColor: "text-muted-foreground", trendIcon: RefreshCw as typeof RefreshCw },
-    { title: "Duración Promedio", value: "2.5h", description: "Por sesión de estacionamiento", icon: Clock, trend: "Estable", iconColor: "text-amber-600 dark:text-amber-400", iconBg: "bg-amber-100 dark:bg-amber-900/30", trendColor: "text-muted-foreground" },
+    {
+      title: "Parkings Activos",
+      value: "3",
+      description: "Espacios actualmente ocupados",
+      icon: Car,
+      trend: "+2 desde ayer",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      iconBg: "bg-blue-100 dark:bg-blue-900/30",
+      trendColor: "text-green-600 dark:text-green-400",
+    },
+    {
+      title: "Ingresos Totales",
+      value: "S/ 1,234",
+      description: "Este mes",
+      icon: TrendingUp,
+      trend: "+12.5% desde el mes pasado",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
+      trendColor: "text-green-600 dark:text-green-400",
+    },
+    {
+      title: "Espacios Disponibles",
+      value: "12",
+      description: "Listos para reservar",
+      icon: ParkingCircle,
+      trend: "Actualizado hace 5 min",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      iconBg: "bg-purple-100 dark:bg-purple-900/30",
+      trendColor: "text-muted-foreground",
+      trendIcon: RefreshCw as typeof RefreshCw,
+    },
+    {
+      title: "Duración Promedio",
+      value: "2.5h",
+      description: "Por sesión de estacionamiento",
+      icon: Clock,
+      trend: "Estable",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      iconBg: "bg-amber-100 dark:bg-amber-900/30",
+      trendColor: "text-muted-foreground",
+    },
   ];
 
   const reservationsChartData = [
@@ -39,8 +98,14 @@ export default function DashboardPage() {
   ];
 
   const reservationsChartConfig = {
-    reservas: { label: "Reservas Diarias", color: "var(--chart-2)" },
-    ingresos: { label: "Ingresos (S/)", color: "var(--chart-1)" },
+    reservas: {
+      label: "Reservas Diarias",
+      color: "var(--chart-2)",
+    },
+    ingresos: {
+      label: "Ingresos (S/)",
+      color: "var(--chart-1)",
+    },
   } satisfies ChartConfig;
 
   const occupancyLineData = [
@@ -52,7 +117,12 @@ export default function DashboardPage() {
     { month: "Noviembre", ocupacion: 86 },
   ];
 
-  const occupancyChartConfig = { ocupacion: { label: "Ocupación", color: "var(--chart-1)" } } satisfies ChartConfig;
+  const occupancyChartConfig = {
+    ocupacion: {
+      label: "Ocupación",
+      color: "var(--chart-1)",
+    },
+  } satisfies ChartConfig;
 
   const zonesPieData = [
     { zone: "Centro", reservas: 275, fill: "var(--chart-1)" },
@@ -63,12 +133,29 @@ export default function DashboardPage() {
   ];
 
   const zonesPieConfig = {
-    reservas: { label: "Reservas" },
-    centro: { label: "Zona Centro", color: "var(--chart-1)" },
-    norte: { label: "Zona Norte", color: "var(--chart-2)" },
-    sur: { label: "Zona Sur", color: "var(--chart-3)" },
-    este: { label: "Zona Este", color: "var(--chart-4)" },
-    oeste: { label: "Zona Oeste", color: "var(--chart-5)" },
+    reservas: {
+      label: "Reservas",
+    },
+    centro: {
+      label: "Zona Centro",
+      color: "var(--chart-1)",
+    },
+    norte: {
+      label: "Zona Norte",
+      color: "var(--chart-2)",
+    },
+    sur: {
+      label: "Zona Sur",
+      color: "var(--chart-3)",
+    },
+    este: {
+      label: "Zona Este",
+      color: "var(--chart-4)",
+    },
+    oeste: {
+      label: "Zona Oeste",
+      color: "var(--chart-5)",
+    },
   } satisfies ChartConfig;
 
   const [activeChart, setActiveChart] = React.useState<"reservas" | "ingresos">("reservas");
@@ -106,19 +193,31 @@ export default function DashboardPage() {
             { borderColor: "border-amber-500/20 hover:border-amber-500/50", shadowColor: "hover:shadow-amber-500/30", gradientFrom: "hover:from-amber-500/10", shimmerColor: "via-amber-400/20", rotate: "hover:rotate-2" },
           ];
           const config = cardConfigs[index] || cardConfigs[0];
+
           return (
-            <div key={stat.title} className={`p-6 rounded-xl backdrop-blur-lg border ${config.borderColor} bg-gradient-to-tr from-card/60 to-card/40 dark:from-card/80 dark:to-card/60 shadow-lg ${config.shadowColor} transition-all duration-300 ease-out cursor-pointer hover:bg-gradient-to-tr ${config.gradientFrom} hover:to-card/40 dark:hover:to-card/60 group relative overflow-hidden`}>
-              <div className={`absolute inset-0 bg-gradient-to-r from-transparent ${config.shimmerColor} to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out`} />
+            <div
+              key={stat.title}
+              className={`p-6 rounded-xl backdrop-blur-lg border ${config.borderColor} bg-gradient-to-tr from-card/60 to-card/40 dark:from-card/80 dark:to-card/60 shadow-lg ${config.shadowColor} transition-all duration-300 ease-out cursor-pointer hover:bg-gradient-to-tr ${config.gradientFrom} hover:to-card/40 dark:hover:to-card/60 group relative overflow-hidden`}
+            >
+              <div
+                className={`absolute inset-0 bg-gradient-to-r from-transparent ${config.shimmerColor} to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out`}
+              />
               <div className="relative z-10">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-0 pt-0">
-                  <CardTitle className="text-sm font-medium text-foreground/90 group-hover:text-foreground transition-colors duration-300">{stat.title}</CardTitle>
+                  <CardTitle className="text-sm font-medium text-foreground/90 group-hover:text-foreground transition-colors duration-300">
+                    {stat.title}
+                  </CardTitle>
                   <div className={`p-2.5 rounded-xl ${stat.iconBg} transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-current/30`}>
                     <Icon className={`h-5 w-5 ${stat.iconColor} drop-shadow-sm group-hover:drop-shadow-md transition-all duration-300`} />
                   </div>
                 </CardHeader>
                 <CardContent className="px-0 pb-0">
-                  <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mb-3 group-hover:text-foreground/70 transition-colors duration-300">{stat.description}</p>
+                  <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-foreground transition-colors duration-300">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3 group-hover:text-foreground/70 transition-colors duration-300">
+                    {stat.description}
+                  </p>
                   <div className="flex items-center gap-1.5">
                     {stat.trend.includes('+') && (
                       <TrendingUp className="h-3.5 w-3.5 text-green-600 dark:text-green-400 transition-transform duration-300 group-hover:scale-110" />
@@ -126,7 +225,9 @@ export default function DashboardPage() {
                     {'trendIcon' in stat && stat.trendIcon && (
                       <stat.trendIcon className="h-3.5 w-3.5 text-muted-foreground animate-spin-slow" />
                     )}
-                    <p className={`text-xs font-medium ${stat.trendColor} transition-colors duration-300`}>{stat.trend}</p>
+                    <p className={`text-xs font-medium ${stat.trendColor} transition-colors duration-300`}>
+                      {stat.trend}
+                    </p>
                   </div>
                 </CardContent>
               </div>
@@ -144,19 +245,53 @@ export default function DashboardPage() {
             </div>
             <div className="flex">
               {(["reservas", "ingresos"] as const).map((key) => (
-                <button key={key} data-active={activeChart === key} className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6" onClick={() => setActiveChart(key)}>
-                  <span className="text-muted-foreground text-xs">{key === "reservas" ? "Reservas" : "Ingresos (S/)"}</span>
-                  <span className="text-lg leading-none font-bold sm:text-3xl">{key === "reservas" ? totalReservations.reservas.toLocaleString() : `S/ ${totalReservations.ingresos.toLocaleString()}`}</span>
+                <button
+                  key={key}
+                  data-active={activeChart === key}
+                  className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
+                  onClick={() => setActiveChart(key)}
+                >
+                  <span className="text-muted-foreground text-xs">
+                    {key === "reservas" ? "Reservas" : "Ingresos (S/)"}
+                  </span>
+                  <span className="text-lg leading-none font-bold sm:text-3xl">
+                    {key === "reservas" 
+                      ? totalReservations.reservas.toLocaleString()
+                      : `S/ ${totalReservations.ingresos.toLocaleString()}`
+                    }
+                  </span>
                 </button>
               ))}
             </div>
           </CardHeader>
           <CardContent className="px-2 sm:p-6">
-            <ChartContainer config={reservationsChartConfig} className="aspect-auto h-[250px] w-full">
+            <ChartContainer
+              config={reservationsChartConfig}
+              className="aspect-auto h-[250px] w-full"
+            >
               <BarChart accessibilityLayer data={reservationsChartData} margin={{ left: 12, right: 12 }}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} minTickGap={32} tickFormatter={(value) => new Date(value).toLocaleDateString("es-ES", { month: "short", day: "numeric" })} />
-                <ChartTooltip content={<ChartTooltipContent className="w-[150px]" labelFormatter={(value) => new Date(value).toLocaleDateString("es-ES", { month: "short", day: "numeric", year: "numeric" })} />} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => {
+                    const date = new Date(value);
+                    return date.toLocaleDateString("es-ES", { month: "short", day: "numeric" });
+                  }}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      className="w-[150px]"
+                      labelFormatter={(value) => {
+                        return new Date(value).toLocaleDateString("es-ES", { month: "short", day: "numeric", year: "numeric" });
+                      }}
+                    />
+                  }
+                />
                 <Bar dataKey={activeChart} fill={`var(--color-${activeChart === "reservas" ? "reservas" : "ingresos"})`} />
               </BarChart>
             </ChartContainer>
@@ -207,7 +342,9 @@ export default function DashboardPage() {
             </ChartContainer>
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm pt-0">
-            <div className="flex gap-2 leading-none font-medium">Aumento del 5.2% este mes <TrendingUp className="h-4 w-4" /></div>
+            <div className="flex gap-2 leading-none font-medium">
+              Aumento del 5.2% este mes <TrendingUp className="h-4 w-4" />
+            </div>
             <div className="text-muted-foreground leading-none">Mostrando ocupación promedio por mes</div>
           </CardFooter>
         </Card>

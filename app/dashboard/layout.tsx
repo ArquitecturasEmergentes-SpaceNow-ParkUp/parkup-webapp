@@ -22,7 +22,7 @@ export default async function DashboardLayout({
 
   // Redirect admins to admin panel
   if (user && isAdmin(user)) {
-    redirect("/admin");
+    redirect("/admin/dashboard");
   }
 
   return (

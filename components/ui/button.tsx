@@ -10,6 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        action:
+          "bg-primary text-primary-foreground hover:bg-primary/95 rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 hover:scale-105 active:scale-[0.98] hover:brightness-110 ring-2 ring-primary/30 hover:ring-4 hover:ring-primary/40",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -48,10 +50,19 @@ function Button({
   }) {
   const Comp = asChild ? Slot : "button"
 
+  const actionSizeMap: Record<string, string> = {
+    default: "h-10 px-6",
+    sm: "h-8 px-5 text-xs",
+    lg: "h-12 px-8",
+  }
+  const actionSizeClasses = variant === "action" && size && actionSizeMap[size as string]
+    ? actionSizeMap[size as string]
+    : ""
+
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), actionSizeClasses, className)}
       {...props}
     />
   )

@@ -98,24 +98,23 @@ export async function signup(formData: FormData) {
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get("session")?.value;
-  const userId = cookieStore.get("user_id")?.value;
 
-  if (!token || !userId) {
+  if (!token) {
     return null;
   }
 
   try {
-    const response = await fetch(endpoints.users.getById(userId), {
+    const response = await fetch(endpoints.users.me, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (response.ok) {
       const data = await response.json();
-      // data: { id: number, email: string, roles: string[] }
       return {
         id: data.id,
         email: data.email,
@@ -124,7 +123,7 @@ export async function getCurrentUser(): Promise<User | null> {
     }
     return null;
   } catch (error) {
-    console.error("Error fetching user data:", error);
+    console.error("Error fetching /api/user/me:", error);
     return null;
   }
 }

@@ -37,6 +37,7 @@ export const endpoints = {
   users: {
     getById: (userId: string | number) =>
       `${config.apiUrl}/api/v1/users/${userId}`,
+    me: `${config.apiUrl}/api/v1/users/me`,
   },
   recognitionUnits: {
     getAll: `${config.apiUrl}/api/v1/recognition-units`,
