@@ -6,6 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ParkingMap } from "@/components/reservations";
+import { InteractiveMapEditor } from "@/components/admin/InteractiveMapEditor";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface Props {
   initialLayout: string;
@@ -18,6 +21,8 @@ interface Props {
 export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveAction, importAction }: Props) {
   const [layoutText, setLayoutText] = useState(initialLayout);
   const [codesText, setCodesText] = useState("");
+  const [showInteractiveEditor, setShowInteractiveEditor] = useState(false);
+  const router = useRouter();
 
   const parsedLayout: any[] = useMemo(() => {
     try {
@@ -49,29 +54,72 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
     }));
   }, [parsedLayout, parkingLotId]);
 
+  const handleInteractiveLayoutChange = (newLayout: any[]) => {
+    setLayoutText(JSON.stringify(newLayout, null, 2));
+  };
+
+  const handleInteractiveSave = async (layout: any[]) => {
+    const formData = new FormData();
+    formData.set('layout', JSON.stringify(layout));
+    try {
+      await saveAction(formData);
+      toast.success('Mapa guardado exitosamente');
+      setLayoutText(JSON.stringify(layout, null, 2));
+      router.refresh();
+    } catch (e) {
+      toast.error('Error al guardar el mapa');
+    }
+  };
+
   return (
     <div className="space-y-8">
-      <form action={saveAction} className="space-y-4">
-        <Label htmlFor="layout">Layout JSON</Label>
-        <Textarea id="layout" name="layout" value={layoutText} onChange={(e) => setLayoutText(e.target.value)} className="min-h-40" />
-        <div className="flex items-center gap-4">
-          <Button type="submit" disabled={!mapId}>Guardar Layout</Button>
-          {!mapId && <span className="text-sm text-muted-foreground">No hay mapa asignado al parking lot</span>}
-        </div>
-      </form>
-
-      <div>
-        <Label>Vista previa</Label>
-        <div className="mt-2">
-          <ParkingMap
-            slots={previewSlots}
-            onSlotSelect={() => {}}
-            selectedSlotId={null}
-            showOnlyAvailable={false}
-            onToggleShowOnlyAvailable={() => {}}
-          />
-        </div>
+      {/* Toggle between editors */}
+      <div className="flex gap-4">
+        <Button
+          variant={!showInteractiveEditor ? 'default' : 'outline'}
+          onClick={() => setShowInteractiveEditor(false)}
+        >
+          Editor JSON
+        </Button>
+        <Button
+          variant={showInteractiveEditor ? 'default' : 'outline'}
+          onClick={() => setShowInteractiveEditor(true)}
+        >
+          Editor Interactivo
+        </Button>
       </div>
+
+      {showInteractiveEditor ? (
+        <InteractiveMapEditor
+          initialLayout={parsedLayout}
+          onLayoutChange={handleInteractiveLayoutChange}
+          onSave={handleInteractiveSave}
+        />
+      ) : (
+        <>
+          <form action={saveAction} className="space-y-4">
+            <Label htmlFor="layout">Layout JSON</Label>
+            <Textarea id="layout" name="layout" value={layoutText} onChange={(e) => setLayoutText(e.target.value)} className="min-h-40" />
+            <div className="flex items-center gap-4">
+              <Button type="submit" disabled={!mapId}>Guardar Layout</Button>
+              {!mapId && <span className="text-sm text-muted-foreground">No hay mapa asignado al parking lot</span>}
+            </div>
+          </form>
+
+          <div>
+            <Label>Vista previa</Label>
+            <div className="mt-2">
+              <ParkingMap
+                slots={previewSlots}
+                onSlotSelect={() => {}}
+                selectedSlotId={null}
+                showOnlyAvailable={false}
+                onToggleShowOnlyAvailable={() => {}}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       <form action={importAction} className="space-y-4">
         <Label htmlFor="codes">Importar espacios (separados por coma, espacio o salto de línea)</Label>

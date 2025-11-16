@@ -16,6 +16,7 @@ import {
   ArrowRight,
   Check,
 } from "lucide-react";
+import { WordRotate } from "@/components/ui/word-rotate";
 
 export default function Home() {
   const features = [
@@ -53,20 +54,23 @@ export default function Home() {
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-8 flex justify-center">
+          <div className="grid min-h-[140px] w-full place-items-center overflow-x-scroll rounded-lg p-6 lg:overflow-visible">
             <Image
               src="/logo_banner.webp"
               alt="ParkUp Logo"
               width={200}
               height={80}
               priority
-              className="object-contain"
+              className="object-cover object-center w-1/5 rounded-lg shadow-xl shadow-blue-gray-900/50"
             />
           </div>
 
           <h1 className="mb-6 max-w-4xl text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
-            Find & Book Parking Spots{" "}
-            <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="inline mr-2">
+              <WordRotate words={["Find", "Book"]} />
+              Parking Spots{" "}
+            </span>
+            <span className="block mt-2 bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Effortlessly
             </span>
           </h1>
@@ -77,13 +81,13 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Button asChild size="lg" className="text-base">
+            <Button asChild size="lg" variant="bezel" className="text-base">
               <Link href="/register">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="text-base">
+            <Button asChild size="lg" variant="bezel" className="text-base">
               <Link href="/login">Sign In</Link>
             </Button>
           </div>
@@ -173,7 +177,7 @@ export default function Home() {
                 <p className="mb-6 text-gray-600">
                   Join thousands of users who have made parking hassle-free
                 </p>
-                <Button asChild size="lg">
+                <Button asChild size="lg" variant="bezel">
                   <Link href="/register">Create Free Account</Link>
                 </Button>
               </div>

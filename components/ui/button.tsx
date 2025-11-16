@@ -12,6 +12,8 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         action:
           "bg-primary text-primary-foreground hover:bg-primary/95 rounded-full shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 hover:scale-105 active:scale-[0.98] hover:brightness-110 ring-2 ring-primary/30 hover:ring-4 hover:ring-primary/40",
+        bezel:
+          "bg-accent text-accent-foreground border-[3px] border-foreground rounded-md font-black shadow-[0.1em_0.1em_0_0_var(--foreground)] hover:-translate-x-[0.05em] hover:-translate-y-[0.05em] hover:shadow-[0.15em_0.15em_0_0_var(--foreground)] active:translate-x-[0.05em] active:translate-y-[0.05em] active:shadow-[0.05em_0.05em_0_0_var(--foreground)]",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -59,10 +61,19 @@ function Button({
     ? actionSizeMap[size as string]
     : ""
 
+  const bezelSizeMap: Record<string, string> = {
+    default: "h-10 px-6 text-[18px]",
+    sm: "h-9 px-5 text-sm",
+    lg: "h-12 px-8 text-[18px]",
+  }
+  const bezelSizeClasses = variant === "bezel" && size && bezelSizeMap[size as string]
+    ? bezelSizeMap[size as string]
+    : ""
+
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size }), actionSizeClasses, className)}
+      className={cn(buttonVariants({ variant, size }), actionSizeClasses, bezelSizeClasses, className)}
       {...props}
     />
   )
