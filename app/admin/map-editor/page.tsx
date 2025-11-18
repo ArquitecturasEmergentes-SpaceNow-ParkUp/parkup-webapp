@@ -33,7 +33,7 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
     "use server";
     const content = formData.get("layout") as string;
     const targetMapId = mapId;
-    const computeTotals = (jsonText: string) => {
+    const computeTotals = (jsonText: string): { totalSpaces: number; disabilitySpaces: number } => {
       try {
         const rows = JSON.parse(jsonText) as any[];
         let total = 0;
@@ -46,15 +46,23 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
         });
         return { totalSpaces: total, disabilitySpaces: 0 };
       } catch {
-        return { totalSpaces: undefined, disabilitySpaces: undefined };
+        // If JSON is invalid, return zero counts so `editParkingLotMap` and
+        // `addParkingLotMap` receive numeric values rather than `undefined`.
+        return { totalSpaces: 0, disabilitySpaces: 0 };
       }
     };
     const totals = computeTotals(content);
+    // Ensure we pass numbers to the API; TS sometimes widens to `number | undefined`.
+    const totalSpaces = totals.totalSpaces ?? 0;
+    const disabilitySpaces = totals.disabilitySpaces ?? 0;
+    if (!parkingLotId) throw new Error("No parking lot selected");
+    const lotId = parkingLotId;
+
     if (targetMapId) {
-      const res = await editParkingLotMap(targetMapId, { parkingLotId, newLayoutJson: content, newTotalSpaces: totals.totalSpaces, newDisabilitySpaces: totals.disabilitySpaces });
+      const res = await editParkingLotMap(targetMapId, { parkingLotId: lotId, newLayoutJson: content, newTotalSpaces: totalSpaces, newDisabilitySpaces: disabilitySpaces });
       if (!res.success) throw new Error(res.error || "Failed to edit map");
     } else {
-      const res = await addParkingLotMap({ parkingLotId, layoutJson: content, totalSpaces: totals.totalSpaces, disabilitySpaces: totals.disabilitySpaces });
+      const res = await addParkingLotMap({ parkingLotId: lotId, layoutJson: content, totalSpaces: totalSpaces, disabilitySpaces: disabilitySpaces });
       if (!res.success) throw new Error(res.error || "Failed to add map");
     }
     revalidatePath("/admin/map-editor");

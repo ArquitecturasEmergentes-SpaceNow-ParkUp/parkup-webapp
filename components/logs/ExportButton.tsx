@@ -13,11 +13,13 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 interface ExportButtonProps {
-  logs: Log[];
+  logs?: Log[];
+  onExport?: (format: 'csv' | 'json') => void;
 }
 
-export function ExportButton({ logs }: ExportButtonProps) {
+export function ExportButton({ logs, onExport }: ExportButtonProps) {
   const exportToCSV = () => {
+    if (!logs || logs.length === 0) return;
     const headers = [
       'ID',
       'Fecha y Hora',
@@ -63,6 +65,7 @@ export function ExportButton({ logs }: ExportButtonProps) {
   };
 
   const exportToJSON = () => {
+    if (!logs || logs.length === 0) return;
     const jsonContent = JSON.stringify(logs, null, 2);
     const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
     const link = document.createElement('a');
@@ -84,11 +87,11 @@ export function ExportButton({ logs }: ExportButtonProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={exportToCSV}>
+        <DropdownMenuItem onClick={() => (onExport ? onExport('csv') : exportToCSV())}>
           <FileSpreadsheet className="h-4 w-4 mr-2" />
           Exportar CSV
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={exportToJSON}>
+        <DropdownMenuItem onClick={() => (onExport ? onExport('json') : exportToJSON())}>
           <FileText className="h-4 w-4 mr-2" />
           Exportar JSON
         </DropdownMenuItem>

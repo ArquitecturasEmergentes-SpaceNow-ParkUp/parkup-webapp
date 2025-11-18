@@ -46,9 +46,9 @@ export function Filters({ filters, onFilterChange }: FiltersProps) {
           <Select
             value={filters.action || undefined}
             onValueChange={(value) => handleInputChange('action', value === 'all' ? '' : value)}
-            id="logs-action"
           >
             <SelectTrigger>
+              id="logs-action"
               <SelectValue placeholder="Todas las acciones" />
             </SelectTrigger>
             <SelectContent>
@@ -81,9 +81,9 @@ export function Filters({ filters, onFilterChange }: FiltersProps) {
           <Select
             value={filters.status || undefined}
             onValueChange={(value) => handleInputChange('status', value === 'all' ? '' : value)}
-            id="logs-status"
           >
             <SelectTrigger>
+              id="logs-status"
               <SelectValue placeholder="Todos los estados" />
             </SelectTrigger>
             <SelectContent>
