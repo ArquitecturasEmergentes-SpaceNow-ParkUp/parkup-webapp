@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ParkingMap, ReservationDialog } from "@/components/reservations";
 import { useReservations } from "@/hooks/useReservations";
+import { useRouter } from "next/navigation";
 import type { SlotStatus, SlotType } from "@/components/reservations/ParkingSlot";
 import type { ParkingSlot as BackendParkingSlot } from "@/lib/reservations";
 
@@ -30,7 +31,7 @@ function mapStatus(status: BackendParkingSlot["status"]): SlotStatus {
   return "AVAILABLE";
 }
 
-export function ReservationsClient({ slots }: { slots: BackendParkingSlot[] }) {
+export function ReservationsClient({ slots, layout }: { slots: BackendParkingSlot[]; layout?: any[] }) {
   const normalizedSlots: ParkingSpot[] = useMemo(
     () =>
       (slots || []).map((s) => ({
@@ -48,6 +49,7 @@ export function ReservationsClient({ slots }: { slots: BackendParkingSlot[] }) {
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { isCreating, handleCreateReservation } = useReservations();
+  const router = useRouter();
 
   const selectedSlot = normalizedSlots.find((slot) => slot.id === selectedSlotId);
 
@@ -80,6 +82,7 @@ export function ReservationsClient({ slots }: { slots: BackendParkingSlot[] }) {
 
     const success = await handleCreateReservation(
       selectedSlot.parkingLotId,
+      selectedSlot.parkingSlotId,
       formatDate(startTime),
       formatDate(endTime),
       paymentIntentId,
@@ -88,6 +91,8 @@ export function ReservationsClient({ slots }: { slots: BackendParkingSlot[] }) {
     if (success) {
       setIsDialogOpen(false);
       setSelectedSlotId(null);
+      // Refresh the server-rendered data to reflect new reserved status
+      router.refresh();
     }
   };
 
@@ -99,6 +104,7 @@ export function ReservationsClient({ slots }: { slots: BackendParkingSlot[] }) {
         selectedSlotId={selectedSlotId}
         showOnlyAvailable={showOnlyAvailable}
         onToggleShowOnlyAvailable={setShowOnlyAvailable}
+        layout={layout}
       />
 
       <div className="flex justify-center">

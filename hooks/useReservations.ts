@@ -23,7 +23,7 @@ export function useReservations(): UseReservationsReturn {
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateReservation = useCallback(
-    async (parkingLotId: number, startTime: string, endTime: string, paymentIntentId: string) => {
+    async (parkingLotId: number, parkingSlotId: number | null, startTime: string, endTime: string, paymentIntentId: string) => {
       // Get current user ID
       const userId = await getCurrentUserId();
 
@@ -65,6 +65,7 @@ export function useReservations(): UseReservationsReturn {
       const data: CreateReservationRequest = {
         userId,
         parkingLotId,
+        parkingSlotId: parkingSlotId || undefined,
         startTime,
         endTime,
       };

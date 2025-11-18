@@ -7,13 +7,21 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default async function MapEditorPage() {
+export default async function MapEditorPage({ searchParams }: { searchParams?: { parkingLotId?: string } }) {
   const lots = await listParkingLots();
   const lot = lots.success && lots.data && lots.data.length > 0 ? lots.data[0] : null;
+  // Read selection from query string (server-side). If provided, prefer user selection.
+  // In some Next.js versions `searchParams` may be a Promise; unwrap it safely.
+  const resolvedSearchParams =
+    searchParams && typeof (searchParams as any)?.then === "function" ? await searchParams : searchParams;
+
+  const selectedParkingLotId = resolvedSearchParams?.parkingLotId
+    ? Number(resolvedSearchParams.parkingLotId)
+    : (lot ? lot.id : undefined);
   let initialLayout = JSON.stringify(parkingLayoutData);
   let mapId: number | null = null;
-  const parkingLotId = lot ? lot.id : 1;
-  const lotDetail = lot ? await getParkingLotById(lot.id) : null;
+  const parkingLotId = selectedParkingLotId as number | undefined;
+  const lotDetail = parkingLotId ? await getParkingLotById(parkingLotId) : null;
   if (lotDetail && lotDetail.success && lotDetail.data && Array.isArray(lotDetail.data.maps) && lotDetail.data.maps.length > 0) {
     const maps = lotDetail.data.maps as any[];
     const m = maps[maps.length - 1];
@@ -43,9 +51,11 @@ export default async function MapEditorPage() {
     };
     const totals = computeTotals(content);
     if (targetMapId) {
-      await editParkingLotMap(targetMapId, { parkingLotId, newLayoutJson: content, newTotalSpaces: totals.totalSpaces, newDisabilitySpaces: totals.disabilitySpaces });
+      const res = await editParkingLotMap(targetMapId, { parkingLotId, newLayoutJson: content, newTotalSpaces: totals.totalSpaces, newDisabilitySpaces: totals.disabilitySpaces });
+      if (!res.success) throw new Error(res.error || "Failed to edit map");
     } else {
-      await addParkingLotMap({ parkingLotId, layoutJson: content, totalSpaces: totals.totalSpaces, disabilitySpaces: totals.disabilitySpaces });
+      const res = await addParkingLotMap({ parkingLotId, layoutJson: content, totalSpaces: totals.totalSpaces, disabilitySpaces: totals.disabilitySpaces });
+      if (!res.success) throw new Error(res.error || "Failed to add map");
     }
     revalidatePath("/admin/map-editor");
   }
@@ -60,12 +70,45 @@ export default async function MapEditorPage() {
         .map((c) => c.trim())
         .filter((c) => c.length > 0)
         .map((code) => ({ code, disability: /\bDISABLED\b/i.test(code) ? true : false }));
-      await importParkingSpaces(targetMapId, items);
+      const res = await importParkingSpaces(targetMapId, items);
+      if (!res.success) throw new Error(res.error || "Failed to import spaces");
     }
   }
 
   return (
     <div className="space-y-6">
+      {/* Allow admin to select which parking lot to edit */}
+          <div>
+            <form method="get">
+              <label htmlFor="parkingLotId" className="sr-only">Parking Lot</label>
+              {lots.success && lots.data && lots.data.length > 0 ? (
+                <>
+                  <select name="parkingLotId" id="parkingLotId" defaultValue={String(parkingLotId)} className="mr-4 p-2 border rounded">
+                    {lots.data.map((l) => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </select>
+                  <button type="submit" className="btn">Cambiar Lote</button>
+                </>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  No hay parking lots disponibles en tu cuenta. {lots.error === "Not authenticated" ? (
+                    <>
+                      Por favor <Link href="/login" className="text-primary underline">inicia sesión</Link> como administrador.
+                    </>
+                  ) : (
+                    <>
+                      {lots.error ? (
+                        <span>{lots.error}</span>
+                      ) : (
+                        "Asegúrate de crear un lote en la sección de afiliados."
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </form>
+          </div>
       <div className="flex items-center gap-4">
         <Link href="/admin/dashboard">
           <Button variant="outline" size="sm">

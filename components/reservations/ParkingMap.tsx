@@ -19,6 +19,7 @@ interface ParkingMapProps {
   selectedSlotId: string | null;
   showOnlyAvailable: boolean;
   onToggleShowOnlyAvailable: (checked: boolean) => void;
+  layout?: LayoutRow[]; // optional layout; if not provided, fallback to DEFAULT
 }
 
 interface LayoutGroup {
@@ -32,7 +33,7 @@ interface LayoutRow {
 }
 
 // Import layout configuration from JSON
-const PARKING_LAYOUT: LayoutRow[] = parkingLayoutData as LayoutRow[];
+const DEFAULT_PARKING_LAYOUT: LayoutRow[] = parkingLayoutData as LayoutRow[];
 
 export function ParkingMap({
   slots,
@@ -40,6 +41,7 @@ export function ParkingMap({
   selectedSlotId,
   showOnlyAvailable,
   onToggleShowOnlyAvailable,
+  layout,
 }: ParkingMapProps) {
   const getSlotById = (id: string): ParkingSpot | undefined => {
     return slots.find((slot) => slot.id === id);
@@ -50,6 +52,8 @@ export function ParkingMap({
     const slot = getSlotById(slotId);
     return slot ? slot.status === "AVAILABLE" : false;
   };
+
+  const effectiveLayout = layout && layout.length > 0 ? layout : DEFAULT_PARKING_LAYOUT;
 
   return (
     <Card>
@@ -70,7 +74,7 @@ export function ParkingMap({
       </CardHeader>
       <CardContent>
         <div className="bg-gray-50 rounded-lg p-8 space-y-4">
-          {PARKING_LAYOUT.map((rowConfig) => (
+          {effectiveLayout.map((rowConfig) => (
             <div key={rowConfig.row} className="flex gap-4 justify-start">
               {rowConfig.slots.map((group, groupIndex) => {
                 if (group.gap) {

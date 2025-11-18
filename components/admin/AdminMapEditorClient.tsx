@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   initialLayout: string;
-  parkingLotId: number;
+  parkingLotId?: number;
   mapId: number | null;
   saveAction: (formData: FormData) => Promise<void>;
   importAction: (formData: FormData) => Promise<void>;
@@ -50,7 +50,7 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       status: "AVAILABLE" as const,
       type: "REGULAR" as const,
       parkingSlotId: 0,
-      parkingLotId,
+      parkingLotId: parkingLotId || 0,
     }));
   }, [parsedLayout, parkingLotId]);
 
@@ -66,8 +66,52 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       toast.success('Mapa guardado exitosamente');
       setLayoutText(JSON.stringify(layout, null, 2));
       router.refresh();
-    } catch (e) {
-      toast.error('Error al guardar el mapa');
+    } catch (e: any) {
+      const message = e?.message || 'Error al guardar el mapa';
+      toast.error(message);
+    }
+  };
+
+  // Handler to save JSON layout via server action but showing toast in UI
+  const handleJsonSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    // Client-side validation: layout must be array of rows with slots
+    const parsed = parsedLayout;
+    const isValidLayout = (obj: any): boolean => {
+      if (!Array.isArray(obj)) return false;
+      for (const r of obj) {
+        if (typeof r !== "object" || !r.row || !Array.isArray(r.slots)) return false;
+      }
+      return true;
+    };
+    if (!isValidLayout(parsed)) {
+      toast.error("Formato de layout inválido. Usa filas y grupos 'slots' en el JSON.");
+      return;
+    }
+
+    try {
+      await saveAction(formData);
+      toast.success('Mapa guardado exitosamente');
+      router.refresh();
+    } catch (err: any) {
+      const message = err?.message || 'Error al guardar el mapa';
+      toast.error(message);
+    }
+  };
+
+  const handleImport = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    try {
+      await importAction(formData);
+      toast.success('Importado correctamente');
+      router.refresh();
+    } catch (err: any) {
+      const message = err?.message || 'Error al importar';
+      toast.error(message);
     }
   };
 
@@ -97,12 +141,12 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
         />
       ) : (
         <>
-          <form action={saveAction} className="space-y-4">
+          <form onSubmit={handleJsonSave} className="space-y-4">
             <Label htmlFor="layout">Layout JSON</Label>
             <Textarea id="layout" name="layout" value={layoutText} onChange={(e) => setLayoutText(e.target.value)} className="min-h-40" />
             <div className="flex items-center gap-4">
-              <Button type="submit" disabled={!mapId}>Guardar Layout</Button>
-              {!mapId && <span className="text-sm text-muted-foreground">No hay mapa asignado al parking lot</span>}
+              <Button type="submit" disabled={!parkingLotId}>Guardar Layout</Button>
+              {!mapId && <span className="text-sm text-muted-foreground">No hay mapa asignado al parking lot. Al enviar se creará uno.</span>}
             </div>
           </form>
 
@@ -121,7 +165,7 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
         </>
       )}
 
-      <form action={importAction} className="space-y-4">
+      <form onSubmit={handleImport} className="space-y-4">
         <Label htmlFor="codes">Importar espacios (separados por coma, espacio o salto de línea)</Label>
         <Input id="codes" name="codes" value={codesText} onChange={(e) => setCodesText(e.target.value)} placeholder="A1, A2, B1, B2" />
         <div className="flex items-center gap-4">

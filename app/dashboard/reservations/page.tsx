@@ -3,11 +3,36 @@ import { Badge } from "@/components/ui/badge";
 import { StatusLegend } from "@/components/reservations";
 import { ReservationsClient } from "@/components/reservations/ReservationsClient";
 import { getParkingSlotsByLot } from "@/lib/reservations";
+import { getParkingLotById } from "@/lib/parkingLots";
 
 export default async function ReservationsPage() {
   const parkingLotId = 1;
   const result = await getParkingSlotsByLot(parkingLotId);
   const slots = (result.success && result.data) ? result.data : [];
+  // Try to retrieve the current parking lot layout (latest map)
+  const lot = await getParkingLotById(parkingLotId);
+  let layout: any[] | undefined = undefined;
+    if (lot && lot.success && lot.data && Array.isArray(lot.data.maps) && lot.data.maps.length > 0) {
+    const latestMap = lot.data.maps[lot.data.maps.length - 1];
+    if (latestMap && latestMap.layoutJson) {
+      try {
+        const parsed = JSON.parse(latestMap.layoutJson);
+          // Support 2 shapes: array of rows OR array of slot codes (legacy)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            if (typeof parsed[0] === "string") {
+              // Legacy: array of codes -> create a single-row layout
+              layout = [
+                { row: "A", slots: [{ ids: parsed as string[], gap: false }] },
+              ];
+            } else {
+              layout = parsed;
+            }
+          }
+      } catch {
+        layout = undefined;
+      }
+    }
+  }
 
   const availableCount = slots.filter((slot) => slot.status === "AVAILABLE").length;
   const occupiedCount = slots.filter((slot) => slot.status === "OCCUPIED").length;
@@ -40,7 +65,7 @@ export default async function ReservationsPage() {
           </CardContent>
         </Card>
       </div>
-      <ReservationsClient slots={slots} />
+      <ReservationsClient slots={slots} layout={layout} />
     </div>
   );
 }

@@ -27,6 +27,7 @@ export interface Reservation {
 export interface CreateReservationRequest {
   userId: number;
   parkingLotId: number;
+  parkingSlotId?: number;
   startTime: string;
   endTime: string;
 }
