@@ -97,6 +97,11 @@ export const endpoints = {
       },
     },
   },
+  logs: {
+    getAll: `${config.apiUrl}/api/logs`,
+    getById: (id: string | number) => `${config.apiUrl}/api/logs/${id}`,
+    create: `${config.apiUrl}/api/logs`,
+  },
 } as const;
 
 export default config;
