@@ -3,14 +3,25 @@ import { Badge } from "@/components/ui/badge";
 import { StatusLegend } from "@/components/reservations";
 import { ReservationsClient } from "@/components/reservations/ReservationsClient";
 import { getParkingSlotsByLot } from "@/lib/reservations";
+import { listParkingLots } from "@/lib/parkingLots";
 import { getParkingLotById } from "@/lib/parkingLots";
 
-export default async function ReservationsPage() {
-  const parkingLotId = 1;
-  const result = await getParkingSlotsByLot(parkingLotId);
+export default async function ReservationsPage({ searchParams }: { searchParams?: { parkingLotId?: string } }) {
+  // Resolve parking lot selection from query string; if not provided, default to first lot
+  const lots = await listParkingLots();
+  const resolvedSearchParams =
+    searchParams && typeof (searchParams as any)?.then === "function" ? await searchParams : searchParams;
+
+  const selectedParkingLotId = resolvedSearchParams?.parkingLotId
+    ? Number(resolvedSearchParams.parkingLotId)
+    : undefined;
+
+  const defaultLot = lots.success && lots.data && lots.data.length > 0 ? lots.data[0] : null;
+  const parkingLotId = selectedParkingLotId ?? (defaultLot ? defaultLot.id : undefined);
+  const result = parkingLotId ? await getParkingSlotsByLot(parkingLotId) : { success: true, data: [], error: undefined };
   const slots = (result.success && result.data) ? result.data : [];
   // Try to retrieve the current parking lot layout (latest map)
-  const lot = await getParkingLotById(parkingLotId);
+  const lot = parkingLotId ? await getParkingLotById(parkingLotId) : null;
   let layout: any[] | undefined = undefined;
     if (lot && lot.success && lot.data && Array.isArray(lot.data.maps) && lot.data.maps.length > 0) {
     const latestMap = lot.data.maps[lot.data.maps.length - 1];
@@ -40,6 +51,23 @@ export default async function ReservationsPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <form method="get">
+          <label htmlFor="parkingLotId" className="sr-only">Parking Lot</label>
+          {lots.success && lots.data && lots.data.length > 0 ? (
+            <>
+              <select name="parkingLotId" id="parkingLotId" defaultValue={String(parkingLotId)} className="mr-4 p-2 border rounded">
+                {lots.data.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+              <button type="submit" className="btn">Cambiar Lote</button>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground">No hay parking lots disponibles.</div>
+          )}
+        </form>
+      </div>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>

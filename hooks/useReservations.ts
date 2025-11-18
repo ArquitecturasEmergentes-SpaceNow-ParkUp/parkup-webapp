@@ -13,6 +13,7 @@ export interface UseReservationsReturn {
   isCreating: boolean;
   handleCreateReservation: (
     parkingLotId: number,
+    parkingSlotId: number | null,
     startTime: string,
     endTime: string,
     paymentIntentId: string,
