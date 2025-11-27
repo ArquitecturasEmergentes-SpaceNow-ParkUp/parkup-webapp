@@ -71,13 +71,17 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
   async function importSpacesAction(formData: FormData) {
     "use server";
     const codesRaw = formData.get("codes") as string;
+    const isDisabled = formData.get("isDisabled") === "on";
     const targetMapId = mapId;
     if (targetMapId && codesRaw) {
       const items = codesRaw
         .split(/\s|,|;|\n/)
         .map((c) => c.trim())
         .filter((c) => c.length > 0)
-        .map((code) => ({ code, disability: /\bDISABLED\b/i.test(code) ? true : false }));
+        .map((code) => ({
+          code,
+          disability: isDisabled || /\bDISABLED\b/i.test(code) ? true : false
+        }));
       const res = await importParkingSpaces(targetMapId, items);
       if (!res.success) throw new Error(res.error || "Failed to import spaces");
     }
@@ -86,37 +90,37 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
   return (
     <div className="space-y-6">
       {/* Allow admin to select which parking lot to edit */}
-          <div>
-            <form method="get">
-              <label htmlFor="parkingLotId" className="sr-only">Parking Lot</label>
-              {lots.success && lots.data && lots.data.length > 0 ? (
+      <div>
+        <form method="get">
+          <label htmlFor="parkingLotId" className="sr-only">Parking Lot</label>
+          {lots.success && lots.data && lots.data.length > 0 ? (
+            <>
+              <select name="parkingLotId" id="parkingLotId" defaultValue={String(parkingLotId)} className="mr-4 p-2 border rounded">
+                {lots.data.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+              <button type="submit" className="btn">Cambiar Lote</button>
+            </>
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              No hay parking lots disponibles en tu cuenta. {lots.error === "Not authenticated" ? (
                 <>
-                  <select name="parkingLotId" id="parkingLotId" defaultValue={String(parkingLotId)} className="mr-4 p-2 border rounded">
-                    {lots.data.map((l) => (
-                      <option key={l.id} value={l.id}>{l.name}</option>
-                    ))}
-                  </select>
-                  <button type="submit" className="btn">Cambiar Lote</button>
+                  Por favor <Link href="/login" className="text-primary underline">inicia sesión</Link> como administrador.
                 </>
               ) : (
-                <div className="text-sm text-muted-foreground">
-                  No hay parking lots disponibles en tu cuenta. {lots.error === "Not authenticated" ? (
-                    <>
-                      Por favor <Link href="/login" className="text-primary underline">inicia sesión</Link> como administrador.
-                    </>
+                <>
+                  {lots.error ? (
+                    <span>{lots.error}</span>
                   ) : (
-                    <>
-                      {lots.error ? (
-                        <span>{lots.error}</span>
-                      ) : (
-                        "Asegúrate de crear un lote en la sección de afiliados."
-                      )}
-                    </>
+                    "Asegúrate de crear un lote en la sección de afiliados."
                   )}
-                </div>
+                </>
               )}
-            </form>
-          </div>
+            </div>
+          )}
+        </form>
+      </div>
       <div className="flex items-center gap-4">
         <Link href="/admin/dashboard">
           <Button variant="outline" size="sm">
@@ -125,7 +129,7 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
           </Button>
         </Link>
       </div>
-      
+
       <Card>
         <CardHeader>
           <h2 className="text-2xl font-bold">Editor de Mapa</h2>

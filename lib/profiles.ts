@@ -12,6 +12,7 @@ export interface ProfileData {
   countryCode: string;
   phoneNumber: string;
   notificationsEnabled?: boolean;
+  disability?: boolean;
 }
 
 export interface UpdateProfileRequest {
@@ -297,6 +298,50 @@ export async function updateNotifications(
     return { success: false, error: "Network error" };
   }
 }
+
+/**
+ * Update disability status
+ */
+export async function updateDisabilityStatus(
+  userId: number,
+  enabled: boolean,
+): Promise<{
+  success: boolean;
+  data?: UserData;
+  error?: string;
+}> {
+  const token = await getAuthToken();
+
+  if (!token) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}/disability`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ disability: enabled }),
+      cache: "no-store",
+    });
+
+    if (response.ok) {
+      const updatedUser = await response.json();
+      return { success: true, data: updatedUser };
+    } else {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "Failed to update disability status" }));
+      return { success: false, error: errorData.message };
+    }
+  } catch (error) {
+    console.error("Error updating disability status:", error);
+    return { success: false, error: "Network error" };
+  }
+}
+
 export async function getUserById(userId: number): Promise<{
   success: boolean;
   data?: UserData;

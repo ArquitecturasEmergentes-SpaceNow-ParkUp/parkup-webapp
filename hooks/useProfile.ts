@@ -9,6 +9,7 @@ import {
   updateProfile as updateProfileServer,
   createProfile as createProfileServer,
   updateNotifications as updateNotificationsServer,
+  updateDisabilityStatus as updateDisabilityStatusServer,
   type ProfileData,
   type UpdateProfileRequest,
   type CreateProfileRequest,
@@ -28,6 +29,7 @@ export interface UseProfileReturn {
   updateProfile: (profileId: number, data: UpdateProfileRequest) => Promise<boolean>;
   createProfile: (data: CreateProfileRequest) => Promise<boolean>;
   updateNotifications: (profileId: number, enabled: boolean) => Promise<boolean>;
+  updateDisabilityStatus: (userId: number, enabled: boolean) => Promise<boolean>;
 }
 
 export function useProfile(): UseProfileReturn {
@@ -203,7 +205,36 @@ export function useProfile(): UseProfileReturn {
       }
     },
     [],
-  );  return {
+  );
+
+  const updateDisabilityStatusFunc = useCallback(
+    async (userId: number, enabled: boolean) => {
+      try {
+        const result = await updateDisabilityStatusServer(userId, enabled);
+
+        if (result.success && result.data) {
+          setProfile((prev: ProfileData | null) => (prev ? { ...prev, disability: enabled } : null));
+          toast.success(
+            enabled
+              ? "Estado de discapacidad activado"
+              : "Estado de discapacidad desactivado",
+          );
+          return true;
+        } else {
+          toast.error("Error al actualizar el estado de discapacidad");
+          console.error("Error updating disability status:", result.error);
+          return false;
+        }
+      } catch (error) {
+        toast.error("Error al actualizar el estado de discapacidad");
+        console.error("Error updating disability status:", error);
+        return false;
+      }
+    },
+    [],
+  );
+
+  return {
     profile,
     user,
     isLoading,
@@ -216,5 +247,6 @@ export function useProfile(): UseProfileReturn {
     updateProfile: updateProfileFunc,
     createProfile: createProfileFunc,
     updateNotifications: updateNotificationsFunc,
+    updateDisabilityStatus: updateDisabilityStatusFunc,
   };
 }

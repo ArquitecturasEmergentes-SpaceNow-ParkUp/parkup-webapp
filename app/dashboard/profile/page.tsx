@@ -11,6 +11,7 @@ import {
   NotificationsCard,
   HelpCard,
   ProfileSkeleton,
+  DisabilityStatusCard,
 } from "@/components/profile";
 
 import { getCookie } from 'cookies-next';
@@ -27,6 +28,7 @@ export default function ProfilePage() {
     updateProfile,
     createProfile,
     updateNotifications,
+    updateDisabilityStatus,
   } = useProfile();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -97,6 +99,11 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDisabilityToggle = async (userId: number, enabled: boolean) => {
+    if (!profile) return;
+    await updateDisabilityStatus(userId, enabled);
+  };
+
   const handleContactSupport = () => {
     // TODO: Implement contact support functionality
     toast.info("Funcionalidad de soporte próximamente");
@@ -151,6 +158,15 @@ export default function ProfilePage() {
             <NotificationsCard
               enabled={notificationsEnabled}
               onToggle={handleNotificationsToggle}
+            />
+          )}
+
+          {/* Disability Status Card - only show if profile exists */}
+          {profile && (
+            <DisabilityStatusCard
+              enabled={profile.disability || false}
+              userId={profile.userId}
+              onToggle={handleDisabilityToggle}
             />
           )}
 

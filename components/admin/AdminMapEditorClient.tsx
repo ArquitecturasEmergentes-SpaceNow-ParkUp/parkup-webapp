@@ -155,10 +155,10 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
             <div className="mt-2">
               <ParkingMap
                 slots={previewSlots}
-                onSlotSelect={() => {}}
+                onSlotSelect={() => { }}
                 selectedSlotId={null}
                 showOnlyAvailable={false}
-                onToggleShowOnlyAvailable={() => {}}
+                onToggleShowOnlyAvailable={() => { }}
               />
             </div>
           </div>
@@ -168,6 +168,19 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       <form onSubmit={handleImport} className="space-y-4">
         <Label htmlFor="codes">Importar espacios (separados por coma, espacio o salto de línea)</Label>
         <Input id="codes" name="codes" value={codesText} onChange={(e) => setCodesText(e.target.value)} placeholder="A1, A2, B1, B2" />
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isDisabled"
+            name="isDisabled"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <Label htmlFor="isDisabled" className="font-normal cursor-pointer">
+            Marcar como espacios para discapacitados
+          </Label>
+        </div>
+
         <div className="flex items-center gap-4">
           <Button type="submit" disabled={!mapId}>Importar Espacios</Button>
           {!mapId && <span className="text-sm text-muted-foreground">No hay mapa asignado para importar espacios</span>}
