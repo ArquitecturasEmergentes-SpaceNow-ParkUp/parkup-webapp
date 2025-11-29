@@ -19,6 +19,7 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
     ? Number(resolvedSearchParams.parkingLotId)
     : (lot ? lot.id : undefined);
   let initialLayout = JSON.stringify(parkingLayoutData);
+  let initialDisabledSpaces: string[] = [];
   let mapId: number | null = null;
   const parkingLotId = selectedParkingLotId as number | undefined;
   const lotDetail = parkingLotId ? await getParkingLotById(parkingLotId) : null;
@@ -27,31 +28,62 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
     const m = maps[maps.length - 1];
     mapId = m.id;
     if (m.layoutJson) initialLayout = m.layoutJson;
+    
+    // Extract disabled spaces from parking slots
+    if (Array.isArray(m.parkingSlots)) {
+      initialDisabledSpaces = m.parkingSlots
+        .filter((slot: any) => slot.disability === true || slot.type === "DISABLED")
+        .map((slot: any) => slot.code || slot.slotNumber);
+    }
   }
 
   async function saveLayout(formData: FormData) {
     "use server";
     const content = formData.get("layout") as string;
+    const disabledSpacesRaw = formData.get("disabledSpaces") as string | null;
     const targetMapId = mapId;
-    const computeTotals = (jsonText: string): { totalSpaces: number; disabilitySpaces: number } => {
+    
+    // Parse disabled spaces from form data
+    let disabledSpacesSet: Set<string> = new Set();
+    if (disabledSpacesRaw) {
+      try {
+        const parsed = JSON.parse(disabledSpacesRaw);
+        if (Array.isArray(parsed)) {
+          disabledSpacesSet = new Set(parsed);
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+    
+    const computeTotals = (jsonText: string, disabledSet: Set<string>): { totalSpaces: number; disabilitySpaces: number } => {
       try {
         const rows = JSON.parse(jsonText) as any[];
         let total = 0;
+        let disabilityCount = 0;
         rows.forEach((row) => {
           if (Array.isArray(row?.slots)) {
             row.slots.forEach((g: any) => {
-              if (!g?.gap && Array.isArray(g?.ids)) total += g.ids.length;
+              if (!g?.gap && Array.isArray(g?.ids)) {
+                total += g.ids.length;
+                // Count disabled spaces
+                g.ids.forEach((id: string) => {
+                  if (disabledSet.has(id)) {
+                    disabilityCount++;
+                  }
+                });
+              }
             });
           }
         });
-        return { totalSpaces: total, disabilitySpaces: 0 };
+        return { totalSpaces: total, disabilitySpaces: disabilityCount };
       } catch {
         // If JSON is invalid, return zero counts so `editParkingLotMap` and
         // `addParkingLotMap` receive numeric values rather than `undefined`.
         return { totalSpaces: 0, disabilitySpaces: 0 };
       }
     };
-    const totals = computeTotals(content);
+    const totals = computeTotals(content, disabledSpacesSet);
     // Ensure we pass numbers to the API; TS sometimes widens to `number | undefined`.
     const totalSpaces = totals.totalSpaces ?? 0;
     const disabilitySpaces = totals.disabilitySpaces ?? 0;
@@ -138,7 +170,14 @@ export default async function MapEditorPage({ searchParams }: { searchParams?: {
           </p>
         </CardHeader>
         <CardContent>
-          <AdminMapEditorClient initialLayout={initialLayout} parkingLotId={parkingLotId} mapId={mapId} saveAction={saveLayout} importAction={importSpacesAction} />
+          <AdminMapEditorClient 
+            initialLayout={initialLayout} 
+            initialDisabledSpaces={initialDisabledSpaces}
+            parkingLotId={parkingLotId} 
+            mapId={mapId} 
+            saveAction={saveLayout} 
+            importAction={importSpacesAction} 
+          />
         </CardContent>
       </Card>
     </div>

@@ -5,6 +5,7 @@ import { ReservationsClient } from "@/components/reservations/ReservationsClient
 import { getParkingSlotsByLot } from "@/lib/reservations";
 import { listParkingLots } from "@/lib/parkingLots";
 import { getParkingLotById } from "@/lib/parkingLots";
+import { getProfileByUserId, getCurrentUserId } from "@/lib/profiles";
 
 export default async function ReservationsPage({ searchParams }: { searchParams?: { parkingLotId?: string } }) {
   // Resolve parking lot selection from query string; if not provided, default to first lot
@@ -20,6 +21,18 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
   const parkingLotId = selectedParkingLotId ?? (defaultLot ? defaultLot.id : undefined);
   const result = parkingLotId ? await getParkingSlotsByLot(parkingLotId) : { success: true, data: [], error: undefined };
   const slots = (result.success && result.data) ? result.data : [];
+  
+  // Fetch user's disability status from their profile
+  const userId = await getCurrentUserId();
+  let userHasDisability = false;
+  
+  if (userId) {
+    const profileResult = await getProfileByUserId(userId);
+    if (profileResult.success && profileResult.data) {
+      userHasDisability = profileResult.data.disability ?? false;
+    }
+  }
+  
   // Try to retrieve the current parking lot layout (latest map)
   const lot = parkingLotId ? await getParkingLotById(parkingLotId) : null;
   let layout: any[] | undefined = undefined;
@@ -48,6 +61,7 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
   const availableCount = slots.filter((slot) => slot.status === "AVAILABLE").length;
   const occupiedCount = slots.filter((slot) => slot.status === "OCCUPIED").length;
   const reservedCount = slots.filter((slot) => slot.status === "RESERVED").length;
+  const disabledCount = slots.filter((slot) => slot.type === "DISABLED").length;
 
   return (
     <div className="space-y-6">
@@ -77,7 +91,7 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
           <StatusLegend />
         </div>
         <Card>
-          <CardContent className="flex gap-4 pt-6">
+          <CardContent className="flex flex-wrap gap-4 pt-6">
             <Badge variant="secondary" className="gap-2 px-4 py-2 text-base">
               <span className="font-bold text-lg">{availableCount}</span>
               <span>Disponibles</span>
@@ -90,10 +104,16 @@ export default async function ReservationsPage({ searchParams }: { searchParams?
               <span className="font-bold text-lg">{reservedCount}</span>
               <span>Reservados</span>
             </Badge>
+            {disabledCount > 0 && (
+              <Badge variant="secondary" className="gap-2 px-4 py-2 text-base bg-blue-100 text-blue-800">
+                <span className="font-bold text-lg">{disabledCount}</span>
+                <span>♿ Discapacitados</span>
+              </Badge>
+            )}
           </CardContent>
         </Card>
       </div>
-      <ReservationsClient slots={slots} layout={layout} />
+      <ReservationsClient slots={slots} layout={layout} userHasDisability={userHasDisability} />
     </div>
   );
 }
