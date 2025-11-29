@@ -12,14 +12,16 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   initialLayout: string;
+  initialDisabledSpaces?: string[];
   parkingLotId?: number;
   mapId: number | null;
   saveAction: (formData: FormData) => Promise<void>;
   importAction: (formData: FormData) => Promise<void>;
 }
 
-export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveAction, importAction }: Props) {
+export function AdminMapEditorClient({ initialLayout, initialDisabledSpaces = [], parkingLotId, mapId, saveAction, importAction }: Props) {
   const [layoutText, setLayoutText] = useState(initialLayout);
+  const [disabledSpaces, setDisabledSpaces] = useState<string[]>(initialDisabledSpaces);
   const [codesText, setCodesText] = useState("");
   const [showInteractiveEditor, setShowInteractiveEditor] = useState(false);
   const router = useRouter();
@@ -39,7 +41,9 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       if (Array.isArray(row.slots)) {
         row.slots.forEach((g: any) => {
           if (!g.gap && Array.isArray(g.ids)) {
-            g.ids.forEach((id: string) => ids.push(id));
+            for (const id of g.ids) {
+              ids.push(id);
+            }
           }
         });
       }
@@ -48,23 +52,25 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       id,
       slotNumber: id,
       status: "AVAILABLE" as const,
-      type: "REGULAR" as const,
+      type: (disabledSpaces.includes(id) ? "DISABLED" : "REGULAR") as "REGULAR" | "DISABLED" | "MOTORCYCLE",
       parkingSlotId: 0,
       parkingLotId: parkingLotId || 0,
     }));
-  }, [parsedLayout, parkingLotId]);
+  }, [parsedLayout, parkingLotId, disabledSpaces]);
 
   const handleInteractiveLayoutChange = (newLayout: any[]) => {
     setLayoutText(JSON.stringify(newLayout, null, 2));
   };
 
-  const handleInteractiveSave = async (layout: any[]) => {
+  const handleInteractiveSave = async (layout: any[], newDisabledSpaces: string[]) => {
     const formData = new FormData();
     formData.set('layout', JSON.stringify(layout));
+    formData.set('disabledSpaces', JSON.stringify(newDisabledSpaces));
     try {
       await saveAction(formData);
       toast.success('Mapa guardado exitosamente');
       setLayoutText(JSON.stringify(layout, null, 2));
+      setDisabledSpaces(newDisabledSpaces);
       router.refresh();
     } catch (e: any) {
       const message = e?.message || 'Error al guardar el mapa';
@@ -136,6 +142,7 @@ export function AdminMapEditorClient({ initialLayout, parkingLotId, mapId, saveA
       {showInteractiveEditor ? (
         <InteractiveMapEditor
           initialLayout={parsedLayout}
+          initialDisabledSpaces={disabledSpaces}
           onLayoutChange={handleInteractiveLayoutChange}
           onSave={handleInteractiveSave}
         />

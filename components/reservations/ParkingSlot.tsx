@@ -24,6 +24,11 @@ export function ParkingSlot({
   isSelected = false,
 }: ParkingSlotProps) {
   const getStatusColor = () => {
+    // Special styling for DISABLED type slots when available
+    if (type === "DISABLED" && status === "AVAILABLE") {
+      return "bg-blue-100 border-blue-300 hover:bg-blue-200 text-blue-800";
+    }
+    
     switch (status) {
       case "AVAILABLE":
         return "bg-green-100 border-green-300 hover:bg-green-200 text-green-800";

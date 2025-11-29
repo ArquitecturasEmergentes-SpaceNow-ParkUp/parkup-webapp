@@ -32,6 +32,8 @@ export function DisabilityStatusCard({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleToggle = async (checked: boolean) => {
+        console.log("🔄 DisabilityStatusCard.handleToggle called:", { checked, currentEnabled: enabled });
+        
         if (checked && !enabled) {
             // If trying to enable, we need verification first if not already verified
             // For this implementation, we assume if they are enabling it, they need to go through the process
@@ -40,12 +42,15 @@ export function DisabilityStatusCard({
             // If they want to re-enable, do they need to upload again?
             // Let's assume for now that if they disable it, they need to verify again to re-enable.
             // Or maybe we just show the upload UI if it's currently disabled.
+            console.log("🔄 Skipping - need verification flow to enable");
             return;
         }
 
         setIsLoading(true);
         try {
+            console.log("🔄 Calling onToggle with:", { userId, checked });
             await onToggle(userId, checked);
+            console.log("🔄 onToggle completed successfully");
         } catch (error) {
             console.error("Error toggling disability status:", error);
             toast.error("Error al actualizar el estado");
@@ -57,6 +62,8 @@ export function DisabilityStatusCard({
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        console.log("📁 File selected for verification:", file.name);
 
         // Simulate verification process
         setVerificationStatus("verifying");
@@ -71,7 +78,9 @@ export function DisabilityStatusCard({
             // Automatically enable status after success
             setIsLoading(true);
             try {
+                console.log("📁 Calling onToggle to enable disability status after verification");
                 await onToggle(userId, true);
+                console.log("📁 onToggle completed - disability should now be enabled");
             } catch (error) {
                 console.error("Error enabling status after verification:", error);
                 toast.error("Error al activar el estado");

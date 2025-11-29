@@ -3,17 +3,9 @@
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Save, RotateCcw, Move, Square } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Plus, Trash2, Save, RotateCcw, Square, Accessibility } from "lucide-react";
 
 interface LayoutGroup {
   ids: string[];
@@ -35,20 +27,21 @@ interface ParkingSpace {
 
 interface InteractiveMapEditorProps {
   initialLayout: LayoutRow[];
+  initialDisabledSpaces?: string[];
   onLayoutChange: (layout: LayoutRow[]) => void;
-  onSave: (layout: LayoutRow[]) => void;
+  onSave: (layout: LayoutRow[], disabledSpaces: string[]) => void;
 }
 
 export function InteractiveMapEditor({ 
   initialLayout, 
+  initialDisabledSpaces = [],
   onLayoutChange, 
   onSave 
 }: InteractiveMapEditorProps) {
   const [layout, setLayout] = useState<LayoutRow[]>(initialLayout);
-  const [selectedTool, setSelectedTool] = useState<'add' | 'delete' | 'move'>('add');
+  const [disabledSpaces, setDisabledSpaces] = useState<Set<string>>(new Set(initialDisabledSpaces));
+  const [selectedTool, setSelectedTool] = useState<'add' | 'delete' | 'disability'>('add');
   const [newRowName, setNewRowName] = useState('');
-  const [selectedRow, setSelectedRow] = useState<string>('');
-  const [draggedSpace, setDraggedSpace] = useState<ParkingSpace | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const pendingAdd = useRef<Set<string>>(new Set());
   const isProcessingClick = useRef(false);
@@ -85,8 +78,9 @@ export function InteractiveMapEditor({
     if (event.type !== 'pointerup') return;
     if (!event.isPrimary) return;
     if (event.button !== 0) return;
-    console.log('CLICK start', { time: event.timeStamp, tool: selectedTool });
+    // Only handle canvas clicks for 'add' tool
     if (selectedTool !== 'add') return;
+    console.log('CLICK start', { time: event.timeStamp, tool: selectedTool });
     event.preventDefault();
     event.stopPropagation();
     try {
@@ -282,6 +276,24 @@ export function InteractiveMapEditor({
   };
 
   const handleSpaceClick = (space: ParkingSpace) => {
+    console.log('handleSpaceClick called', { id: space.id, tool: selectedTool, currentDisabled: disabledSpaces.has(space.id) });
+    
+    if (selectedTool === 'disability') {
+      // Toggle disability status for this space
+      setDisabledSpaces(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(space.id)) {
+          console.log('Removing from disabled:', space.id);
+          newSet.delete(space.id);
+        } else {
+          console.log('Adding to disabled:', space.id);
+          newSet.add(space.id);
+        }
+        return newSet;
+      });
+      return;
+    }
+
     if (selectedTool === 'delete') {
       console.log('DELETE via space click', space);
       setLayout(prev => {
@@ -371,10 +383,12 @@ export function InteractiveMapEditor({
 
   const handleSave = () => {
     onLayoutChange(layout);
-    onSave(layout);
+    onSave(layout, Array.from(disabledSpaces));
   };
 
   const parkingSpaces = getParkingSpaces();
+  const disabledCount = disabledSpaces.size;
+  const regularCount = parkingSpaces.length - disabledCount;
   const canvasWidth = Math.max(800, (Math.max(...parkingSpaces.map(s => s.x), 0) + 2) * 80);
   const canvasHeight = Math.max(400, (layout.length + 1) * 80);
 
@@ -404,6 +418,15 @@ export function InteractiveMapEditor({
                 <Trash2 className="w-4 h-4 mr-1" />
                 Eliminar
               </Button>
+              <Button
+                variant={selectedTool === 'disability' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedTool('disability')}
+                className={selectedTool === 'disability' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+              >
+                <Accessibility className="w-4 h-4 mr-1" />
+                Discapacitados
+              </Button>
             </div>
 
             <div className="flex gap-2 items-center">
@@ -430,15 +453,22 @@ export function InteractiveMapEditor({
             </Button>
           </div>
 
-          <div className="mt-4 flex gap-2 items-center">
+          <div className="mt-4 flex flex-wrap gap-2 items-center">
             <Badge variant={selectedTool === 'add' ? 'default' : 'outline'}>
               Modo: Agregar espacios
             </Badge>
             <Badge variant={selectedTool === 'delete' ? 'destructive' : 'outline'}>
               Modo: Eliminar espacios
             </Badge>
+            <Badge 
+              variant={selectedTool === 'disability' ? 'default' : 'outline'}
+              className={selectedTool === 'disability' ? 'bg-blue-600' : ''}
+            >
+              Modo: Marcar discapacitados
+            </Badge>
             <span className="text-sm text-muted-foreground">
-              Total de espacios: {parkingSpaces.length}
+              Total: {parkingSpaces.length} | Regulares: {regularCount} | 
+              <span className="text-blue-600 font-medium"> Discapacitados: {disabledCount}</span>
             </span>
           </div>
         </CardContent>
@@ -451,6 +481,21 @@ export function InteractiveMapEditor({
           <p className="text-sm text-muted-foreground">
             Haz clic en el mapa para agregar espacios. Usa las herramientas de arriba para cambiar entre modos.
           </p>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-4 mt-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-emerald-100 border-2 border-emerald-300"></div>
+              <span>Espacio Regular</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-200 border-2 border-blue-500"></div>
+              <span>Espacio Discapacitados</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-red-100 border-2 border-red-300"></div>
+              <span>Modo Eliminar</span>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div 
@@ -468,20 +513,26 @@ export function InteractiveMapEditor({
           >
             {/* Grid lines */}
             <div className="absolute inset-0 pointer-events-none">
-              {Array.from({ length: Math.ceil(canvasWidth / 80) + 1 }).map((_, i) => (
-                <div
-                  key={`v-${i}`}
-                  className="absolute top-0 bottom-0 border-l border-gray-200"
-                  style={{ left: `${i * 80}px` }}
-                />
-              ))}
-              {Array.from({ length: layout.length + 2 }).map((_, i) => (
-                <div
-                  key={`h-${i}`}
-                  className="absolute left-0 right-0 border-t border-gray-200"
-                  style={{ top: `${i * 80}px` }}
-                />
-              ))}
+              {Array.from({ length: Math.ceil(canvasWidth / 80) + 1 }).map((_, i) => {
+                const leftPos = i * 80;
+                return (
+                  <div
+                    key={`v-${leftPos}`}
+                    className="absolute top-0 bottom-0 border-l border-gray-200"
+                    style={{ left: `${leftPos}px` }}
+                  />
+                );
+              })}
+              {Array.from({ length: layout.length + 2 }).map((_, i) => {
+                const topPos = i * 80;
+                return (
+                  <div
+                    key={`h-${topPos}`}
+                    className="absolute left-0 right-0 border-t border-gray-200"
+                    style={{ top: `${topPos}px` }}
+                  />
+                );
+              })}
             </div>
 
             {/* Row labels */}
@@ -501,41 +552,65 @@ export function InteractiveMapEditor({
             ))}
 
             {/* Parking spaces */}
-            {parkingSpaces.map((space) => (
-              <div
-                key={space.id}
-                className={`absolute w-16 h-16 border-2 rounded cursor-pointer transition-all duration-200 flex items-center justify-center font-semibold text-sm ${
-                  selectedTool === 'delete' 
-                    ? 'bg-red-100 border-red-300 hover:bg-red-200' 
-                    : 'bg-blue-100 border-blue-300 hover:bg-blue-200'
-                }`}
-                style={{
-                  left: `${space.x * 80 + 60}px`,
-                  top: `${space.y * 80 + 10}px`
-                }}
-                onPointerDown={(e) => {
-                  if (!e.isPrimary || e.button !== 0) return;
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (selectedTool !== 'delete') return;
-                  const now = performance.now();
-                  const ld = lastDelete.current;
-                  if (ld && ld.id === space.id && ld.pointerId === e.pointerId && now - ld.t < 300) {
-                    return;
-                  }
-                  lastDelete.current = { id: space.id, t: now, pointerId: e.pointerId };
-                  handleSpaceClick(space);
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (selectedTool !== 'delete') return;
-                  handleSpaceClick(space);
-                }}
-                title={`Espacio ${space.id} - Fila ${space.row}`}
-              >
-                {space.id}
-              </div>
-            ))}
+            {parkingSpaces.map((space) => {
+              const isDisabled = disabledSpaces.has(space.id);
+              const getSpaceStyle = () => {
+                if (selectedTool === 'delete') {
+                  return 'bg-red-100 border-red-300 hover:bg-red-200 text-red-800';
+                }
+                if (selectedTool === 'disability') {
+                  return isDisabled 
+                    ? 'bg-blue-200 border-blue-500 hover:bg-blue-300 text-blue-800 ring-2 ring-blue-400' 
+                    : 'bg-gray-100 border-gray-300 hover:bg-blue-100 text-gray-700';
+                }
+                // Default view: show disabled spaces in blue
+                return isDisabled
+                  ? 'bg-blue-200 border-blue-500 text-blue-800'
+                  : 'bg-emerald-100 border-emerald-300 hover:bg-emerald-200 text-emerald-800';
+              };
+
+              return (
+                <button
+                  type="button"
+                  key={space.id}
+                  className={`absolute w-16 h-16 border-2 rounded cursor-pointer transition-all duration-200 flex flex-col items-center justify-center font-semibold text-sm ${getSpaceStyle()}`}
+                  style={{
+                    left: `${space.x * 80 + 60}px`,
+                    top: `${space.y * 80 + 10}px`
+                  }}
+                  onPointerDown={(e) => {
+                    if (!e.isPrimary || e.button !== 0) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('SPACE onPointerDown', { id: space.id, tool: selectedTool });
+                    if (selectedTool === 'disability') {
+                      handleSpaceClick(space);
+                      return;
+                    }
+                    if (selectedTool !== 'delete') return;
+                    const now = performance.now();
+                    const ld = lastDelete.current;
+                    if (ld && ld.id === space.id && ld.pointerId === e.pointerId && now - ld.t < 300) {
+                      return;
+                    }
+                    lastDelete.current = { id: space.id, t: now, pointerId: e.pointerId };
+                    handleSpaceClick(space);
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Disability is handled in onPointerDown to avoid double-firing
+                    if (selectedTool === 'disability') return;
+                    console.log('SPACE onClick', { id: space.id, tool: selectedTool });
+                    if (selectedTool !== 'delete') return;
+                    handleSpaceClick(space);
+                  }}
+                  title={`Espacio ${space.id} - Fila ${space.row}${isDisabled ? ' (Discapacitados)' : ''}`}
+                >
+                  {isDisabled && <Accessibility className="w-3 h-3 mb-0.5" />}
+                  <span>{space.id}</span>
+                </button>
+              );
+            })}
 
             {/* Instructions */}
             {parkingSpaces.length === 0 && (

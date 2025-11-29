@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Accessibility } from "lucide-react";
 
 interface StatusLegendProps {
   className?: string;
@@ -8,10 +9,15 @@ interface StatusLegendProps {
 
 export function StatusLegend({ className = "" }: StatusLegendProps) {
   return (
-    <div className={`flex items-center gap-4 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-4 ${className}`}>
       <Badge variant="outline" className="gap-2 px-3 py-1.5">
         <div className="w-3 h-3 rounded-full bg-green-500"></div>
         <span className="text-sm font-medium">Disponible</span>
+      </Badge>
+      <Badge variant="outline" className="gap-2 px-3 py-1.5">
+        <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+        <Accessibility className="h-3 w-3" />
+        <span className="text-sm font-medium">Discapacitados</span>
       </Badge>
       <Badge variant="outline" className="gap-2 px-3 py-1.5">
         <div className="w-3 h-3 rounded-full bg-red-500"></div>

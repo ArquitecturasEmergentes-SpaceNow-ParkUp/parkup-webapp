@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, AlertTriangle, Accessibility } from "lucide-react";
 import { PaymentWrapper } from "./PaymentWrapper";
 
 interface ReservationDialogProps {
@@ -22,6 +22,8 @@ interface ReservationDialogProps {
   isCreating: boolean;
   slotNumber: string;
   slotType: string;
+  userHasDisability?: boolean;
+  isDisabledSlot?: boolean;
 }
 
 export function ReservationDialog({
@@ -31,6 +33,8 @@ export function ReservationDialog({
   isCreating,
   slotNumber,
   slotType,
+  userHasDisability = false,
+  isDisabledSlot = false,
 }: ReservationDialogProps) {
   // Set default times: start in 5 minutes, end in 2 hours
   const getDefaultStartTime = () => {
@@ -48,6 +52,9 @@ export function ReservationDialog({
   const [startTime, setStartTime] = useState(getDefaultStartTime());
   const [endTime, setEndTime] = useState(getDefaultEndTime(getDefaultStartTime()));
   const [showPayment, setShowPayment] = useState(false);
+  
+  // Check if user can reserve this slot
+  const canReserveDisabledSlot = !isDisabledSlot || userHasDisability;
 
   const handleStartTimeChange = (value: string) => {
     setStartTime(value);
@@ -128,6 +135,37 @@ export function ReservationDialog({
         {!showPayment ? (
           <>
             <div className="space-y-4 py-4">
+              {/* Warning for disabled slot when user doesn't have disability */}
+              {isDisabledSlot && !userHasDisability && (
+                <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800">
+                        Atención: Espacio para Discapacitados
+                      </p>
+                      <p className="text-sm text-amber-700 mt-1">
+                        Este espacio es exclusivo para personas con discapacidad.
+                        Si necesitas acceso a estos espacios, activa la opción de
+                        accesibilidad en tu perfil.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Info for disabled slot when user has disability */}
+              {isDisabledSlot && userHasDisability && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <Accessibility className="h-5 w-5 text-blue-600" />
+                    <p className="text-sm text-blue-800">
+                      Este espacio está habilitado para personas con discapacidad.
+                    </p>
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="start-time" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -138,7 +176,7 @@ export function ReservationDialog({
                   type="datetime-local"
                   value={startTime}
                   onChange={(e) => handleStartTimeChange(e.target.value)}
-                  disabled={isCreating}
+                  disabled={isCreating || !canReserveDisabledSlot}
                   min={new Date().toISOString().slice(0, 16)}
                 />
               </div>
@@ -153,12 +191,12 @@ export function ReservationDialog({
                   type="datetime-local"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  disabled={isCreating}
+                  disabled={isCreating || !canReserveDisabledSlot}
                   min={startTime}
                 />
               </div>
 
-              {isValidTimeRange() && (
+              {isValidTimeRange() && canReserveDisabledSlot && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm text-blue-800">
                     <span className="font-semibold">Duración:</span> {formatDuration()}
@@ -169,7 +207,7 @@ export function ReservationDialog({
                 </div>
               )}
 
-              {!isValidTimeRange() && startTime && endTime && (
+              {!isValidTimeRange() && startTime && endTime && canReserveDisabledSlot && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                   <p className="text-sm text-red-800">
                     La hora de fin debe ser posterior a la hora de inicio y la hora
@@ -190,10 +228,10 @@ export function ReservationDialog({
               </Button>
               <Button
                 onClick={() => setShowPayment(true)}
-                disabled={!isValidTimeRange() || isCreating}
+                disabled={!isValidTimeRange() || isCreating || !canReserveDisabledSlot}
                 className="w-full sm:w-auto"
               >
-                Continuar al Pago
+                {canReserveDisabledSlot ? "Continuar al Pago" : "No Disponible"}
               </Button>
             </DialogFooter>
           </>

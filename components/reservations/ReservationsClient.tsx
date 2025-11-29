@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AlertTriangle } from "lucide-react";
 import { ParkingMap, ReservationDialog } from "@/components/reservations";
 import { useReservations } from "@/hooks/useReservations";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,12 @@ interface ParkingSpot {
   parkingLotId: number;
 }
 
+interface ReservationsClientProps {
+  slots: BackendParkingSlot[];
+  layout?: any[];
+  userHasDisability?: boolean;
+}
+
 function mapType(type: BackendParkingSlot["type"]): SlotType {
   if (type === "DISABLED") return "DISABLED";
   if (type === "MOTORCYCLE") return "MOTORCYCLE";
@@ -31,7 +38,7 @@ function mapStatus(status: BackendParkingSlot["status"]): SlotStatus {
   return "AVAILABLE";
 }
 
-export function ReservationsClient({ slots, layout }: { slots: BackendParkingSlot[]; layout?: any[] }) {
+export function ReservationsClient({ slots, layout, userHasDisability = false }: ReservationsClientProps) {
   const normalizedSlots: ParkingSpot[] = useMemo(
     () =>
       (slots || []).map((s) => ({
@@ -52,6 +59,9 @@ export function ReservationsClient({ slots, layout }: { slots: BackendParkingSlo
   const router = useRouter();
 
   const selectedSlot = normalizedSlots.find((slot) => slot.id === selectedSlotId);
+  
+  // Check if the selected slot is for disabled users and user doesn't have disability
+  const isDisabledSlotRestricted = selectedSlot?.type === "DISABLED" && !userHasDisability;
 
   const handleSlotSelect = (slotId: string) => {
     const slot = normalizedSlots.find((s) => s.id === slotId);
@@ -119,17 +129,31 @@ export function ReservationsClient({ slots, layout }: { slots: BackendParkingSlo
       </div>
 
       {selectedSlot && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className={isDisabledSlotRestricted ? "border-amber-200 bg-amber-50" : "border-blue-200 bg-blue-50"}>
           <CardContent className="pt-6">
-            <p className="text-sm text-blue-800 text-center">
-              Ha seleccionado el espacio{" "}
-              <Badge variant="default" className="font-bold">
-                {selectedSlot.slotNumber}
-              </Badge>
-              {selectedSlot.type === "MOTORCYCLE" && " (Motocicleta)"}
-              {selectedSlot.type === "DISABLED" && " (Discapacitados)"}. Haga
-              clic en el botón para configurar su reservación.
-            </p>
+            {isDisabledSlotRestricted ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-amber-800">
+                <AlertTriangle className="h-5 w-5" />
+                <p>
+                  El espacio{" "}
+                  <Badge variant="default" className="font-bold">
+                    {selectedSlot.slotNumber}
+                  </Badge>{" "}
+                  es exclusivo para personas con discapacidad. Si necesitas acceso,
+                  activa la opción de accesibilidad en tu perfil.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-blue-800 text-center">
+                Ha seleccionado el espacio{" "}
+                <Badge variant="default" className="font-bold">
+                  {selectedSlot.slotNumber}
+                </Badge>
+                {selectedSlot.type === "MOTORCYCLE" && " (Motocicleta)"}
+                {selectedSlot.type === "DISABLED" && " (Discapacitados)"}. Haga
+                clic en el botón para configurar su reservación.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
@@ -142,6 +166,8 @@ export function ReservationsClient({ slots, layout }: { slots: BackendParkingSlo
           isCreating={isCreating}
           slotNumber={selectedSlot.slotNumber}
           slotType={selectedSlot.type}
+          userHasDisability={userHasDisability}
+          isDisabledSlot={selectedSlot.type === "DISABLED"}
         />
       )}
     </div>
