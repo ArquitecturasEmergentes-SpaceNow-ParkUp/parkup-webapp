@@ -38,6 +38,8 @@ export const endpoints = {
     getById: (userId: string | number) =>
       `${config.apiUrl}/api/v1/users/${userId}`,
     me: `${config.apiUrl}/api/v1/users/me`,
+    updateDisability: (userId: string | number) =>
+      `${config.apiUrl}/api/v1/users/${userId}/disability`,
   },
   recognitionUnits: {
     getAll: `${config.apiUrl}/api/v1/recognition-units`,

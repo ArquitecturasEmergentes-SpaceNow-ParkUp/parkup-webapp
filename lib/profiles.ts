@@ -31,6 +31,7 @@ export interface UserData {
   id: number;
   email: string;
   roles: string[];
+  disability?: boolean;
 }
 
 /**
@@ -110,22 +111,43 @@ export async function getProfileByUserId(userId: number): Promise<{
   }
 
   try {
-    const response = await fetch(endpoints.profiles.getByUserId(userId), {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
+    // Fetch both profile and user data in parallel
+    const [profileResponse, userResponse] = await Promise.all([
+      fetch(endpoints.profiles.getByUserId(userId), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }),
+      fetch(endpoints.users.getById(userId), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }),
+    ]);
 
-    if (response.ok) {
-      const data = await response.json();
-      return { success: true, data };
-    } else if (response.status === 404) {
+    // Get disability status from user endpoint
+    let disability = false;
+    if (userResponse.ok) {
+      const userData = await userResponse.json();
+      console.log("👤 User data from backend:", userData);
+      disability = userData.disability ?? false;
+    }
+
+    if (profileResponse.ok) {
+      const profileData = await profileResponse.json();
+      console.log("📋 Profile data from backend:", profileData);
+      // Merge disability from user into profile data
+      return { success: true, data: { ...profileData, disability } };
+    } else if (profileResponse.status === 404) {
       return { success: false, notFound: true, error: "Profile not found" };
     } else {
-      const errorData = await response
+      const errorData = await profileResponse
         .json()
         .catch(() => ({ message: "Failed to fetch profile" }));
       return { success: false, error: errorData.message };
@@ -312,12 +334,20 @@ export async function updateDisabilityStatus(
 }> {
   const token = await getAuthToken();
 
+  console.log("🔧 updateDisabilityStatus called with:", { userId, enabled });
+  console.log("🔧 Token present:", !!token);
+
   if (!token) {
+    console.error("❌ No authentication token found");
     return { success: false, error: "Not authenticated" };
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/${userId}/disability`, {
+    const url = endpoints.users.updateDisability(userId);
+    console.log("🔧 Calling endpoint:", url);
+    console.log("🔧 Request body:", JSON.stringify({ disability: enabled }));
+
+    const response = await fetch(url, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -327,17 +357,26 @@ export async function updateDisabilityStatus(
       cache: "no-store",
     });
 
+    console.log("🔧 Response status:", response.status);
+
     if (response.ok) {
       const updatedUser = await response.json();
+      console.log("✅ Success response:", updatedUser);
       return { success: true, data: updatedUser };
     } else {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: "Failed to update disability status" }));
+      const errorText = await response.text();
+      console.error("❌ Error response:", errorText);
+      
+      let errorData: { message?: string };
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { message: errorText || "Failed to update disability status" };
+      }
       return { success: false, error: errorData.message };
     }
   } catch (error) {
-    console.error("Error updating disability status:", error);
+    console.error("❌ Network error updating disability status:", error);
     return { success: false, error: "Network error" };
   }
 }

@@ -209,8 +209,10 @@ export function useProfile(): UseProfileReturn {
 
   const updateDisabilityStatusFunc = useCallback(
     async (userId: number, enabled: boolean) => {
+      console.log("🎯 useProfile.updateDisabilityStatus called:", { userId, enabled });
       try {
         const result = await updateDisabilityStatusServer(userId, enabled);
+        console.log("🎯 Server result:", result);
 
         if (result.success && result.data) {
           setProfile((prev: ProfileData | null) => (prev ? { ...prev, disability: enabled } : null));

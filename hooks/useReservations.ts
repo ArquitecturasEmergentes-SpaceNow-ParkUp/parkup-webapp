@@ -98,8 +98,21 @@ export function useReservations(): UseReservationsReturn {
         setIsCreating(false);
         return false;
       }
+      
+      // Handle specific disability error from backend
+      const errorMessage = result.error || "Failed to create reservation";
+      if (errorMessage.toLowerCase().includes("reserved for disabled users") || 
+          errorMessage.toLowerCase().includes("discapacitados") ||
+          errorMessage.toLowerCase().includes("disabled users only")) {
+        toast.error(
+          "Este espacio es exclusivo para personas con discapacidad. " +
+          "Activa la opción de accesibilidad en tu perfil si la necesitas."
+        );
+      } else {
+        toast.error(errorMessage);
+      }
+      
       console.error("Step 1: Reservation creation failed:", result.error);
-      toast.error(result.error || "Failed to create reservation");
       setIsCreating(false);
       return false;
     },
